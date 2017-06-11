@@ -24,7 +24,8 @@ Perl utility functions for lazy evalutation.
 
 =head1 NOTE
 
-This is alpha-level software. I've not actually decided whether this type of API is useful, and so the interface may change without notice.
+This is alpha-level software. I've not actually decided whether this type of
+API is useful, and so the interface may change without notice.
 
 =cut
 
@@ -43,9 +44,15 @@ sub _isa { defined blessed $_[0] and $_[0]->isa($_[1]); }
 
 =head1 FUNCTIONS
 
-This module has two sets of functions, the C<l_*> functions and the C<g_*> functions. The C<l_*> functions are designed to return a C<Lazy::Util> object which you can get values from, the C<g_*> functions are designed to get a value out of a C<Lazy::Util> object. Some of the C<g_*> functions may never return if the source of values is infinite, but they are for the most part designed to not eat up all of your memory at least ;).
+This module has two sets of functions, the C<l_*> functions and the C<g_*>
+functions. The C<l_*> functions are designed to return a C<Lazy::Util> object
+which you can get values from, the C<g_*> functions are designed to get a value
+out of a C<Lazy::Util> object. Some of the C<g_*> functions may never return if
+the source of values is infinite, but they are for the most part designed to
+not eat up all of your memory at least ;).
 
-All these functions can be exported, but none are exported by default. You can use the C<:all> export tag to export all of them.
+All these functions can be exported, but none are exported by default. You can
+use the C<:all> export tag to export all of them.
 
 =head2 C<l_*> functions
 
@@ -53,9 +60,10 @@ The C<l_*> functions are:
 
 =head3 l_concat - C<l_concat(@sources)>
 
-  my $lazy = l_concat 1, 2, 3, sub { state $i++; }, sub { state $j++; }, $lazy2;
+  my $lazy = l_concat @sources;
 
-C<l_concat> returns a C<Lazy::Util> object which will simply return each subsequent value from the list of sources it's given.
+C<l_concat> returns a C<Lazy::Util> object which will simply return each
+subsequent value from the list of sources it's given.
 
 =cut
 
@@ -92,9 +100,13 @@ sub l_concat {
 
 =head3 l_find - C<l_find($str, @sources)>
 
-  my $lazy = l_find 'stop value', 1, 2, 3, sub { state $i++ }, $lazy2;
+  my $lazy = l_find $str, @sources;
 
-C<l_find> will return a C<Lazy::Util> object which will get as many values as needed until it reaches a value equal to C<$str>, which it will also return, and thereafter it returns C<undef>. This can be used to 'break' an otherwise infinite list, as long as the C<$str> value is guaranteed to come up. See also L<< l_nfind()|/"l_nfind - C<l_nfind($num, @sources)>" >>.
+C<l_find> will return a C<Lazy::Util> object which will get as many values as
+needed until it reaches a value equal to C<$str>, which it will also return,
+and thereafter it returns C<undef>. This can be used to 'break' an otherwise
+infinite list, as long as the C<$str> value is guaranteed to come up. See also
+L<< l_nfind()|/"l_nfind - C<l_nfind($num, @sources)>" >>.
 
 =cut
 
@@ -116,9 +128,11 @@ sub l_find {
 
 =head3 l_first - C<l_first($n, @sources)>
 
-  my $lazy = l_first $n, 1, 2, 3, sub { state $i++ }, $lazy2;
+  my $lazy = l_first $n, @sources;
 
-C<l_first> will return a C<Lazy::Util> object which will only get the first C<$n> values from the subsequent arguments. This can be used the 'break' an otherwise infinite list to only return a certain number of results.
+C<l_first> will return a C<Lazy::Util> object which will only get the first
+C<$n> values from the subsequent arguments. This can be used the 'break' an
+otherwise infinite list to only return a certain number of results.
 
 =cut
 
@@ -137,9 +151,10 @@ sub l_first {
 
 =head3 l_grep - C<l_grep($code, @sources)>
 
-  my $lazy = l_grep { $_ > 3 } 3, 4, 5, sub { $i++ }, $lazy2;
+  my $lazy = l_grep { ... } @sources;
 
-C<l_grep> will return a C<Lazy::Util> object which will filter out any value which doesn't return true from the C<$code> block in the first argument.
+C<l_grep> will return a C<Lazy::Util> object which will filter out any value
+which doesn't return true from the C<$code> block in the first argument.
 
 =cut
 
@@ -163,9 +178,10 @@ sub l_grep (&@) {
 
 =head3 l_map - C<l_map($code, @sources)>
 
-  my $lazy = l_map { lc } 'a', 'b', sub { scalar readline }, $lazy2;
+  my $lazy = l_map { ... } @sources;
 
-C<l_map> will return a C<Lazy::Util> object which will transform any value using the C<$code> block in the first argument.
+C<l_map> will return a C<Lazy::Util> object which will transform any value
+using the C<$code> block in the first argument.
 
 =cut
 
@@ -188,9 +204,13 @@ sub l_map (&@) {
 
 =head3 l_nfind - C<l_nfind($num, @sources)>
 
-  my $lazy = l_find_n 10, 1, 2, 3, sub { state $i++ }, $lazy2;
+  my $lazy = l_find_n $num, @sources;
 
-C<l_nfind> will return a C<Lazy::Util> object which will get as many values as needed until it reaches a value equal to C<$num>, which it will also return, and thereafter it returns C<undef>. This can be used to 'break' an otherwise infinite list, as long as the C<$num> value is guaranteed to come up. See also L<< l_find()|/"l_find - C<l_find($str, @sources)>" >>.
+C<l_nfind> will return a C<Lazy::Util> object which will get as many values as
+needed until it reaches a value equal to C<$num>, which it will also return,
+and thereafter it returns C<undef>. This can be used to 'break' an otherwise
+infinite list, as long as the C<$num> value is guaranteed to come up. See also
+L<< l_find()|/"l_find - C<l_find($str, @sources)>" >>.
 
 =cut
 
@@ -212,9 +232,11 @@ sub l_nfind {
 
 =head3 l_nuniq - C<l_nuniq(@sources)>
 
-  my $lazy = l_nuniq 1, 2, 3, sub { state $i++ }, $lazy2;
+  my $lazy = l_nuniq @sources;
 
-C<l_nuniq> will return a C<Lazy::Util> object which will only return numerically unique values from the sources. B<This has the potential to consume all of your memory> if the C<@sources> are infinite.
+C<l_nuniq> will return a C<Lazy::Util> object which will only return
+numerically unique values from the sources. B<This has the potential to consume
+all of your memory> if the C<@sources> are infinite.
 
 =cut
 
@@ -237,9 +259,11 @@ sub l_nuniq {
 
 =head3 l_uniq - C<l_uniq(@sources)>
 
-  my $lazy = l_uniq 1, 2, 3, sub { state $i++ }, $lazy2;
+  my $lazy = l_uniq @sources;
 
-C<l_uniq> will return a C<Lazy::Util> object which will only return unique values from the sources. B<This has the potential to consume all of your memory> if the C<@sources> are infinite.
+C<l_uniq> will return a C<Lazy::Util> object which will only return unique
+values from the sources. B<This has the potential to consume all of your
+memory> if the C<@sources> are infinite.
 
 =cut
 
@@ -265,9 +289,11 @@ The C<g_*> functions are:
 
 =head3 g_count - C<g_count(@sources)>
 
-  my $count = g_count 1, 2, 3, sub { state $i++; }, $lazy;
+  my $count = g_count @sources;
 
-C<g_count> counts the number of values from the C<@sources> and returns how many there were. B<This has the potential to never return> if given a source of infinite values.
+C<g_count> counts the number of values from the C<@sources> and returns how
+many there were. B<This has the potential to never return> if given a source of
+infinite values.
 
 =cut
 
@@ -284,9 +310,10 @@ sub g_count {
 
 =head3 g_first - C<g_first(@sources)>
 
-  my $val = g_first 1, 2, 3, sub { state $i++; }, $lazy;
+  my $val = g_first @sources;
 
-C<g_first> returns the first value from the list of arguments, lazily evaluating them. Equivalent to C<< l_concat(...)->get(); >>.
+C<g_first> returns the first value from the list of arguments, lazily
+evaluating them. Equivalent to C<< l_concat(...)->get(); >>.
 If C<@sources> is empty, it will return C<undef>.
 
 =cut
@@ -301,9 +328,11 @@ sub g_first {
 
 =head3 g_join - C<g_join($sep, @sources)>
 
-  my $lines = g_join "\n", 1, 2, 3, sub { state $i++; }, $lazy;
+  my $lines = g_join $str, @sources;
 
-C<g_join> evaluates all the values it's given and returns them joined into a string. B<This has the potential to never return as well as running out of memory> if given a source of infinite values.
+C<g_join> evaluates all the values it's given and returns them joined into a
+string. B<This has the potential to never return as well as running out of
+memory> if given a source of infinite values.
 If C<@sources> is empty, it will return C<undef>.
 
 =cut
@@ -321,9 +350,10 @@ sub g_join {
 
 =head3 g_last - C<g_last(@sources)>
 
-  my $val = g_last 1, 2, 3, sub { state $i++; }, $lazy;
+  my $val = g_last @sources;
 
-C<g_last> evaluates all the values it's given and returns the last value. B<This has the potential to never return> if given a source of infinite values.
+C<g_last> evaluates all the values it's given and returns the last value.
+B<This has the potential to never return> if given a source of infinite values.
 If C<@sources> is empty, it will return C<undef>.
 
 =cut
@@ -341,9 +371,10 @@ sub g_last {
 
 =head3 g_max - C<g_max(@sources)>
 
-  my $val = g_max 1, 2, 3, sub { state $i++; }, $lazy;
+  my $val = g_max @sources;
 
-C<g_max> evaluates all the values it's given and returns the highest one. B<This has the potential to never return> if given a source of infinite values.
+C<g_max> evaluates all the values it's given and returns the highest one.
+B<This has the potential to never return> if given a source of infinite values.
 If C<@sources> is empty, it will return C<undef>.
 
 =cut
@@ -361,9 +392,10 @@ sub g_max {
 
 =head3 g_min - C<g_min(@sources)>
 
-  my $val = g_min 1, 2, 3, sub { state $i++; }, $lazy;
+  my $val = g_min @sources;
 
-C<g_min> evaluates all the values it's given and returns the lowest one. B<This has the potential to never return> if given a source of infinite values.
+C<g_min> evaluates all the values it's given and returns the lowest one. B<This
+has the potential to never return> if given a source of infinite values.
 If C<@sources> is empty, it will return C<undef>.
 
 =cut
@@ -381,9 +413,11 @@ sub g_min {
 
 =head3 g_prod - C<g_prod(@sources)>
 
-  my $val = g_prod 1, 2, 3, sub { state $i++; }, $lazy;
+  my $val = g_prod @sources;
 
-C<g_prod> evaluates all the values it's given and returns the product of all of them. B<This has the potential to never return> if given a source of infinite values. Unless one of them is 0. If so, it will short-circuit and return 0.
+C<g_prod> evaluates all the values it's given and returns the product of all of
+them. B<This has the potential to never return> if given a source of infinite
+values. Unless one of them is 0. If so, it will short-circuit and return 0.
 If C<@sources> is empty, it will return C<1>.
 
 =cut
@@ -404,9 +438,11 @@ sub g_prod {
 
 =head3 g_sum - C<g_sum(@sources)>
 
-  my $val = g_sum 1, 2, 3, sub { state $i++; }, $lazy;
+  my $val = g_sum @sources;
 
-C<g_sum> evaluates all the values it's given and returns the sum of all of them. B<This has the potential to never return> if given a source of infinite values.
+C<g_sum> evaluates all the values it's given and returns the sum of all of
+them. B<This has the potential to never return> if given a source of infinite
+values.
 If C<@sources> is empty, it will return C<0>.
 
 =cut
@@ -424,7 +460,11 @@ sub g_sum {
 
 =head2 C<@sources>
 
-The C<@sources> array that most (all?) of these functions take can be any combination of regular scalar values, C<Lazy::Util> objects, L<Scalar::Defer> variables (see L</"NOTES">), or subroutine references. Each of these will be iterated through from start to finish, and if one of them returns C<undef>, the next one will be used instead, until the last one returns C<undef>.
+The C<@sources> array that most (all?) of these functions take can be any
+combination of regular scalar values, C<Lazy::Util> objects, L<Scalar::Defer>
+variables (see L</"NOTES">), or subroutine references. Each of these will be
+iterated through from start to finish, and if one of them returns C<undef>, the
+next one will be used instead, until the last one returns C<undef>.
 
 For instance, in the following scenario:
 
@@ -434,23 +474,36 @@ For instance, in the following scenario:
 
   my @results = ($lazy->get(), $lazy->get(), $lazy->get(), $lazy->get());
 
-What happens when you run C<< $lazy->get() >> the first time is that the subroutine in C<$source> will be executed, and so C<@values> will change to only contain C<qw/ b c />, and C<a> will be returned. The next time C<@values> will be changed to only contain C<qw/ c />, and C<b> will be returned. The third C<< $lazy->get() >> will change C<@values> to C<qw//> (an empty array), and return the C<c>.
+What happens when you run C<< $lazy->get() >> the first time is that the
+subroutine in C<$source> will be executed, and so C<@values> will change to
+only contain C<qw/ b c />, and C<a> will be returned. The next time C<@values>
+will be changed to only contain C<qw/ c />, and C<b> will be returned. The
+third C<< $lazy->get() >> will change C<@values> to C<qw//> (an empty array),
+and return the C<c>.
 
 So far so good.
 
-What happens with the next C<< $lazy->get() >> is that the subroutine in C<$source> will be executed one last time, and it will run C<shift @values>, but C<@values> is empty, so it will return C<undef>, which will signal that C<$source> is exhausted, and so it will be discarded. The next value will be taken from the next element in C<@sources>, which is the single scalar C<1>.
+What happens with the next C<< $lazy->get() >> is that the subroutine in
+C<$source> will be executed one last time, and it will run C<shift @values>,
+but C<@values> is empty, so it will return C<undef>, which will signal that
+C<$source> is exhausted, and so it will be discarded. The next value will be
+taken from the next element in C<@sources>, which is the single scalar C<1>.
 
-This means that at the end, C<@results> will contain C<qw/ a b c 1 />, and any subsequent call to C<< $lazy->get() >> will return C<undef>.
+This means that at the end, C<@results> will contain C<qw/ a b c 1 />, and any
+subsequent call to C<< $lazy->get() >> will return C<undef>.
 
 =head1 Lazy::Util objects
 
-C<Lazy::Util> objects encapsulate a set of lazy evaluation functions, meaning you can combine them using the C<l*> functions listed above.
+C<Lazy::Util> objects encapsulate a set of lazy evaluation functions, meaning
+you can combine them using the C<l*> functions listed above.
 
 =head2 new - C<< Lazy::Util->new($source) >>
 
   my $lazy = Lazy::Util->new(sub { $i++ });
 
-C<< Lazy::Util->new >> takes a code reference which will be used as the source for all the values and returns a C<Lazy::Util> object encapsulating that source.
+C<< Lazy::Util->new >> takes a code reference which will be used as the source
+for all the values and returns a C<Lazy::Util> object encapsulating that
+source.
 
 =cut
 
@@ -473,7 +526,8 @@ sub new {
 
   my $next = $lazy->get();
 
-C<< $lazy->get >> returns the next value from the source it encapsulates. When there are no more values it returns C<undef>.
+C<< $lazy->get >> returns the next value from the source it encapsulates. When
+there are no more values it returns C<undef>.
 
 =cut
 
@@ -487,7 +541,9 @@ sub get {
 
   my @crazy = $lazy->get_all();
 
-C<< $lazy->get_all >> returns all the values from the source, if it can. B<This has the potential to never return as well as running out of memory> if given a source of infinite values.
+C<< $lazy->get_all >> returns all the values from the source, if it can. B<This
+has the potential to never return as well as running out of memory> if given a
+source of infinite values.
 
 =cut
 
@@ -506,7 +562,8 @@ __END__
 
 =head1 NOTES
 
-If L<Scalar::Defer> is installed, it will assume that any object of type C<0> is a C<Scalar::Defer> value and will treat it as a source of values.
+If L<Scalar::Defer> is installed, it will assume that any object of type C<0>
+is a C<Scalar::Defer> value and will treat it as a source of values.
 
 Not to be confused with L<Lazy::Utils>.
 
