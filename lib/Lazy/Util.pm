@@ -41,6 +41,7 @@ our @EXPORT_OK = qw/
   l_nfind
   l_nuniq
   l_uniq
+  g_count
   g_first
   g_last
   g_max
@@ -249,6 +250,25 @@ sub l_uniq {
 =head2 C<g_*> functions
 
 The C<g_*> functions are:
+
+=head3 g_count - C<g_count(@sources)>
+
+  my $count = g_count 1, 2, 3, sub { state $i++; }, $lazy;
+
+C<g_count> counts the number of values from the C<@sources> and returns how many there were. B<This has the potential to never return> if given a source of infinite values.
+
+=cut
+
+sub g_count {
+  my (@vals) = @_;
+
+  my $vals = l_concat @vals;
+
+  my $n = 0;
+  while (defined $vals->get()) { $n++; }
+
+  return $n;
+}
 
 =head3 g_first - C<g_first(@sources)>
 
