@@ -57,7 +57,7 @@ sub _isa { defined blessed $_[0] and $_[0]->isa($_[1]); }
 
 =head1 FUNCTIONS
 
-This module has two sets of functions, the C<l_*> functions and the C<g_*> functions. The C<l_*> functions are designed to return a C<Lazy::Util> object which you can get values from, the C<g_*> functions are designed to get a value out of a C<Lazy::Util> object. Some of the C<g_*> function may never return if the source of values is infinite, but they are designed to not eat up all of your memory at least ;).
+This module has two sets of functions, the C<l_*> functions and the C<g_*> functions. The C<l_*> functions are designed to return a C<Lazy::Util> object which you can get values from, the C<g_*> functions are designed to get a value out of a C<Lazy::Util> object. Some of the C<g_*> functions may never return if the source of values is infinite, but they are for the most part designed to not eat up all of your memory at least ;).
 
 All these functions can be exported, but none are exported by default. You can use the C<:all> export tag to export all of them.
 
