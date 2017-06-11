@@ -64,6 +64,7 @@ is ($l_u->get(), 'c', 'Third value from l_uniq was c');
 is ($l_u->get(), 'd', 'Fourth value from l_uniq was d');
 is ($l_u->get(), undef, 'Only four values from l_uniq');
 
+is (g_count(qw/ a b c d/), 4, 'g_count returned 4');
 is (g_first(1,2), 1, 'g_first returned 1');
 is (g_last(3,4,5), 5, 'g_last returned 5');
 is (g_max(1,2,3,9,8,7,6), 9, 'g_max returned 9');
