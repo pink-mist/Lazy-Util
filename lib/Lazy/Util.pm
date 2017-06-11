@@ -43,6 +43,7 @@ our @EXPORT_OK = qw/
   l_uniq
   g_count
   g_first
+  g_join
   g_last
   g_max
   g_min
@@ -285,6 +286,26 @@ sub g_first {
   my $vals = l_concat @vals;
 
   return $vals->get();
+}
+
+=head3 g_join - C<g_join($sep, @sources)>
+
+  my $lines = g_join "\n", 1, 2, 3, sub { state $i++; }, $lazy;
+
+C<g_join> evaluates all the values it's given and returns them joined into a string. B<This has the potential to never return as well as running out of memory> if given a source of infinite values.
+If C<@sources> is empty, it will return C<undef>.
+
+=cut
+
+sub g_join {
+  my ($sep, @vals) = @_;
+
+  my $vals = l_concat @vals;
+
+  my $ret = $vals->get();
+  while (defined(my $get = $vals->get())) { $ret .= $sep . $get; }
+
+  return $ret;
 }
 
 =head3 g_last - C<g_last(@sources)>
