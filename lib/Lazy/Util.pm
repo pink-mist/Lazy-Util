@@ -47,6 +47,7 @@ our @EXPORT_OK = qw/
   g_last
   g_max
   g_min
+  g_prod
 /;
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
@@ -364,6 +365,26 @@ sub g_min {
 
   my $ret = $vals->get();
   while (defined(my $get = $vals->get())) { $ret = $get if $get < $ret; }
+
+  return $ret;
+}
+
+=head3 g_prod - C<g_prod(@sources)>
+
+  my $val = g_prod 1, 2, 3, sub { state $i++; }, $lazy;
+
+C<g_prod> evaluates all the values it's given and returns the product of all of them. B<This has the potential to never return> if given a source of infinite values. Unless one of them is 0. If so, it will short-circuit and return 0.
+If C<@sources> is empty, it will return C<1>.
+
+=cut
+
+sub g_prod {
+  my @vals = @_;
+
+  my $vals = l_concat @vals;
+
+  my $ret = 1;
+  while (defined(my $get = $vals->get())) { $ret *= $get; return 0 if $ret == 0; }
 
   return $ret;
 }
