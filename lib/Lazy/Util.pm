@@ -26,7 +26,7 @@ This is alpha-level software. I've not actually decided whether this type of API
 
 =cut
 
-use Carp qw/ croak confess /;
+use Carp qw/ croak /;
 use Exporter qw/ import /;
 use Scalar::Util qw/ blessed /;
 
@@ -44,6 +44,8 @@ our @EXPORT_OK = qw/
 /;
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
+
+sub _isa { defined blessed $_[0] and $_[0]->isa($_[1]); }
 
 =head1 FUNCTIONS
 
@@ -68,15 +70,18 @@ sub l_concat {
 
   return Lazy::Util->new(sub { undef }) if @vals == 0;
 
-  return $vals[0] if @vals == 1 and blessed $vals[0] and $vals[0]->isa('Lazy::Util');
+  return $vals[0] if @vals == 1 and _isa($vals[0], 'Lazy::Util');
 
   return Lazy::Util->new(sub {
     while (@vals) {
-      if (not length ref $vals[0]) { my @subvals = $vals[0]; $vals[0] = Lazy::Util->new(sub { shift @subvals }); }
-      if (SCALAR_DEFER and !ref $vals[0] and defined blessed $vals[0] and $vals[0]->isa(0)) { $vals[0] = Lazy::Util->new($vals[0]); }
-      if (not blessed $vals[0]) { $vals[0] = Lazy::Util->new($vals[0]); }
-      if (not $vals[0]->isa('Lazy::Util')) { croak "Not a Lazy::Util object: $vals[0]"; }
+      # if it's a Scalar::Defer or a CODE reference, coerce into a Lazy::Util object
+      $vals[0] = Lazy::Util->new($vals[0]) if SCALAR_DEFER and _isa($vals[0], 0);
+      $vals[0] = Lazy::Util->new($vals[0]) if ref $vals[0] eq 'CODE';
 
+      # if by this point it's not a Lazy::Util object, simply return it and remove from @vals
+      return shift @vals if not _isa($vals[0], 'Lazy::Util');
+
+      # ->get the next value from the Lazy::Util object and return it if it's defined
       if (defined(my $get = $vals[0]->get())) { return $get; }
       else { shift @vals; }
     }
@@ -264,8 +269,11 @@ C<< Lazy::Util->new >> takes a code reference which will be used as the source f
 sub new {
   my ($class, $source) = @_;
 
-  if (SCALAR_DEFER) {
-      if (defined blessed $source and $source->isa(0)) { my $sd = $source; $source = sub { Scalar::Defer::force $sd }; }
+  return $source if _isa($source, 'Lazy::Util');
+
+  if (SCALAR_DEFER and _isa($source, 0)) {
+    my $sd = $source;
+    $source = sub { Scalar::Defer::force $sd };
   }
 
   croak "Not a CODE reference: $source" if ref $source ne 'CODE';
