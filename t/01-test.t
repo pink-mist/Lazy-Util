@@ -48,7 +48,21 @@ is ($l_nf->get(), 2, 'Second value from l_nfind was 2');
 is ($l_nf->get(), 3, 'Third value from l_nfind was 3');
 is ($l_nf->get(), undef, 'Only three values from l_nfind');
 
+my $l_nu = l_nuniq 1, 2, 1, 2, 3, 1, 2, 3, 4;
+isa_ok ($l_nu, 'Lazy::Util');
+is ($l_nu->get(), 1, 'First value from l_nuniq was 1');
+is ($l_nu->get(), 2, 'Second value from l_nuniq was 2');
+is ($l_nu->get(), 3, 'Third value from l_nuniq was 3');
+is ($l_nu->get(), 4, 'Fourth value from l_nuniq was 4');
+is ($l_nu->get(), undef, 'Only four values from l_nuniq');
 
+my $l_u = l_uniq qw/ a b a b c a b c d /;
+isa_ok ($l_u, 'Lazy::Util');
+is ($l_u->get(), 'a', 'First value from l_uniq was a');
+is ($l_u->get(), 'b', 'Second value from l_uniq was b');
+is ($l_u->get(), 'c', 'Third value from l_uniq was c');
+is ($l_u->get(), 'd', 'Fourth value from l_uniq was d');
+is ($l_u->get(), undef, 'Only four values from l_uniq');
 
 is (g_first(1,2), 1, 'g_first returned 1');
 is (g_last(3,4,5), 5, 'g_last returned 5');
