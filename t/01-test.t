@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More;
 
-use Lazy::Util qw/ l_concat l_first l_grep l_map g_first g_last g_max g_min /;
+use Lazy::Util qw/ :all /;
 
 my $l_c = l_concat 1, 2;
 isa_ok ($l_c, 'Lazy::Util');
