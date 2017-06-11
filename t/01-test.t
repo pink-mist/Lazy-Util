@@ -13,6 +13,14 @@ is ($l_c->get(), 1, 'First value from l_concat was 1');
 is ($l_c->get(), 2, 'Second value from l_concat was 2');
 is ($l_c->get(), undef, 'Only two values from l_concat');
 
+my $l_find = l_find 'baa', qw/ aaa aab aba baa aac aca caa abc acb bac bca cab cba /;
+isa_ok ($l_find, 'Lazy::Util');
+is ($l_find->get(), 'aaa', 'First value from l_find was aaa');
+is ($l_find->get(), 'aab', 'Second value from l_find was aab');
+is ($l_find->get(), 'aba', 'Third value from l_find was aba');
+is ($l_find->get(), 'baa', 'Fourth value from l_find was baa');
+is ($l_find->get(), undef, 'Only four values from l_find');
+
 my $l_f = l_first 3, 1, 2, 3, 4;
 isa_ok ($l_f, 'Lazy::Util');
 is ($l_f->get(), 1, 'First value from l_first was 1');
@@ -33,6 +41,12 @@ is ($l_m->get(), 10, 'Second value from l_map was 10');
 is ($l_m->get(), 15, 'Third value from l_map was 15');
 is ($l_m->get(), undef, 'Only three values from l_map');
 
+my $l_nf = l_nfind 3, 1, 2, 3, 4, 5;
+isa_ok ($l_nf, 'Lazy::Util');
+is ($l_nf->get(), 1, 'First value from l_nfind was 1');
+is ($l_nf->get(), 2, 'Second value from l_nfind was 2');
+is ($l_nf->get(), 3, 'Third value from l_nfind was 3');
+is ($l_nf->get(), undef, 'Only three values from l_nfind');
 
 
 
