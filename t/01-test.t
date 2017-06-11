@@ -65,13 +65,25 @@ is ($l_u->get(), 'd', 'Fourth value from l_uniq was d');
 is ($l_u->get(), undef, 'Only four values from l_uniq');
 
 is (g_count(qw/ a b c d/), 4, 'g_count returned 4');
+is (g_count(), 0, 'g_count returned 0');
 is (g_first(1,2), 1, 'g_first returned 1');
+is (g_first(), undef, 'g_first returned undef');
 is (g_join("\n", 1,2,3), "1\n2\n3", 'g_join returned 1\n2\n3');
+is (g_join("\n", 1), '1', 'g_join returned 1');
+is (g_join("\n"), undef, 'g_join returned undef');
 is (g_last(3,4,5), 5, 'g_last returned 5');
+is (g_last(), undef, 'g_last returned undef');
 is (g_max(1,2,3,9,8,7,6), 9, 'g_max returned 9');
+is (g_max(), undef, 'g_max returned undef');
 is (g_min(1,2,3,-4,-3,-2,-1,0), -4, 'g_min returned -4');
+is (g_min(), undef, 'g_min returned undef');
 is (g_prod(1,2,3), 6, 'g_prod returned 6');
+my $switch = 0;
+is (g_prod(1,2,3,0,sub { $switch = 1; undef; }), 0, 'g_prod returned 0');
+is ($switch, 0, 'g_prod stopped in time');
+is (g_prod(), 1, 'g_prod returned 1');
 is (g_sum(1,2,3), 6, 'g_sum returned 6');
+is (g_sum(), 0, 'g_sum returned 0');
 
 my @values = ('a', 'b', 'c');
 my $l_v = l_concat sub { shift @values };
