@@ -1,6 +1,8 @@
 use strict;
 use warnings;
+
 package Lazy::Util;
+
 #ABSTRACT: Perl utilities for lazy evaluation
 
 =head1 SYNOPSIS
@@ -32,26 +34,10 @@ use Scalar::Util qw/ blessed /;
 
 use constant SCALAR_DEFER => eval 'use Scalar::Defer (); 1';
 
-our @EXPORT_OK = qw/
-  l_concat
-  l_find
-  l_first
-  l_grep
-  l_map
-  l_nfind
-  l_nuniq
-  l_uniq
-  g_count
-  g_first
-  g_join
-  g_last
-  g_max
-  g_min
-  g_prod
-  g_sum
-/;
+our @EXPORT_OK = qw/ l_concat l_find l_first l_grep l_map l_nfind l_nuniq
+  l_uniq g_count g_first g_join g_last g_max g_min g_prod g_sum /;
 
-our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
+our %EXPORT_TAGS = (all => [@EXPORT_OK],);
 
 sub _isa { defined blessed $_[0] and $_[0]->isa($_[1]); }
 
@@ -76,25 +62,32 @@ C<l_concat> returns a C<Lazy::Util> object which will simply return each subsequ
 sub l_concat {
   my (@vals) = grep defined, @_;
 
-  return Lazy::Util->new(sub { undef }) if @vals == 0;
+  return Lazy::Util->new(sub {undef}) if @vals == 0;
 
   return $vals[0] if @vals == 1 and _isa($vals[0], 'Lazy::Util');
 
-  return Lazy::Util->new(sub {
-    while (@vals) {
-      # if it's a Scalar::Defer or a CODE reference, coerce into a Lazy::Util object
-      $vals[0] = Lazy::Util->new($vals[0]) if SCALAR_DEFER and _isa($vals[0], 0);
-      $vals[0] = Lazy::Util->new($vals[0]) if ref $vals[0] eq 'CODE';
+  return Lazy::Util->new(
+    sub {
+      while (@vals) {
 
-      # if by this point it's not a Lazy::Util object, simply return it and remove from @vals
-      return shift @vals if not _isa($vals[0], 'Lazy::Util');
+        # if it's a Scalar::Defer or a CODE reference, coerce into a Lazy::Util
+        # object
+        $vals[0] = Lazy::Util->new($vals[0])
+          if SCALAR_DEFER and _isa($vals[0], 0);
+        $vals[0] = Lazy::Util->new($vals[0]) if ref $vals[0] eq 'CODE';
 
-      # ->get the next value from the Lazy::Util object and return it if it's defined
-      if (defined(my $get = $vals[0]->get())) { return $get; }
-      else { shift @vals; }
+        # if by this point it's not a Lazy::Util object, simply return it and
+        # remove from @vals
+        return shift @vals if not _isa($vals[0], 'Lazy::Util');
+
+        # ->get the next value from the Lazy::Util object and return it if it's
+        # defined
+        if   (defined(my $get = $vals[0]->get())) { return $get; }
+        else                                      { shift @vals; }
+      }
+      return undef;
     }
-    return undef;
-  });
+  );
 }
 
 =head3 l_find - C<l_find($str, @sources)>
@@ -111,12 +104,14 @@ sub l_find {
   my $vals = l_concat @vals;
 
   my $found = 0;
-  return Lazy::Util->new(sub {
-    return undef if $found;
-    my $get = $vals->get();
-    $found = 1 if !defined $get or $get eq $str;
-    return $get;
-  });
+  return Lazy::Util->new(
+    sub {
+      return undef if $found;
+      my $get = $vals->get();
+      $found = 1 if !defined $get or $get eq $str;
+      return $get;
+    }
+  );
 }
 
 =head3 l_first - C<l_first($n, @sources)>
@@ -132,10 +127,12 @@ sub l_first {
 
   my $vals = l_concat @vals;
 
-  return Lazy::Util->new(sub {
-     return $vals->get() if $n-- > 0;
-     return undef;
-  });
+  return Lazy::Util->new(
+    sub {
+      return $vals->get() if $n-- > 0;
+      return undef;
+    }
+  );
 }
 
 =head3 l_grep - C<l_grep($code, @sources)>
@@ -151,13 +148,17 @@ sub l_grep (&@) {
 
   my $vals = l_concat @vals;
 
-  return Lazy::Util->new(sub {
-    while (defined(my $get = $vals->get())) {
-        for ($get) { if ($grep->($get)) { return $get } }
-    }
+  return Lazy::Util->new(
+    sub {
+      while (defined(my $get = $vals->get())) {
+        for ($get) {
+          if ($grep->($get)) { return $get }
+        }
+      }
 
-    return undef;
-  });
+      return undef;
+    }
+  );
 }
 
 =head3 l_map - C<l_map($code, @sources)>
@@ -173,14 +174,16 @@ sub l_map (&@) {
 
   my $vals = l_concat @vals;
 
-  return Lazy::Util->new(sub {
-    my $get = $vals->get();
-    return undef if not defined $get;
+  return Lazy::Util->new(
+    sub {
+      my $get = $vals->get();
+      return undef if not defined $get;
 
-    $get = $map->($get) for $get;
+      $get = $map->($get) for $get;
 
-    return $get;
-  });
+      return $get;
+    }
+  );
 }
 
 =head3 l_nfind - C<l_nfind($num, @sources)>
@@ -197,12 +200,14 @@ sub l_nfind {
   my $vals = l_concat @vals;
 
   my $found = 0;
-  return Lazy::Util->new(sub {
-    return undef if $found;
-    my $get = $vals->get();
-    $found = 1 if !defined $get or $get == $num;
-    return $get;
-  });
+  return Lazy::Util->new(
+    sub {
+      return undef if $found;
+      my $get = $vals->get();
+      $found = 1 if !defined $get or $get == $num;
+      return $get;
+    }
+  );
 }
 
 =head3 l_nuniq - C<l_nuniq(@sources)>
@@ -219,13 +224,15 @@ sub l_nuniq {
   my $vals = l_concat @vals;
 
   my %uniq;
-  return Lazy::Util->new(sub {
-    while (defined(my $get = $vals->get())) {
-      my $key = 0+$get;
-      $uniq{$key}++ or return $get;
+  return Lazy::Util->new(
+    sub {
+      while (defined(my $get = $vals->get())) {
+        my $key = 0 + $get;
+        $uniq{$key}++ or return $get;
+      }
+      return undef;
     }
-    return undef;
-  });
+  );
 }
 
 =head3 l_uniq - C<l_uniq(@sources)>
@@ -242,12 +249,14 @@ sub l_uniq {
   my $vals = l_concat @vals;
 
   my %uniq;
-  return Lazy::Util->new(sub {
-    while (defined(my $get = $vals->get())) {
-      $uniq{$get}++ or return $get;
+  return Lazy::Util->new(
+    sub {
+      while (defined(my $get = $vals->get())) {
+        $uniq{$get}++ or return $get;
+      }
+      return undef;
     }
-    return undef;
-  });
+  );
 }
 
 =head2 C<g_*> functions
@@ -385,7 +394,10 @@ sub g_prod {
   my $vals = l_concat @vals;
 
   my $ret = 1;
-  while (defined(my $get = $vals->get())) { $ret *= $get; return 0 if $ret == 0; }
+  while (defined(my $get = $vals->get())) {
+    $ret *= $get;
+    return 0 if $ret == 0;
+  }
 
   return $ret;
 }
