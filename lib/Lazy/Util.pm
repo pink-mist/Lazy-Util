@@ -5,9 +5,9 @@ package Lazy::Util;
 
 =head1 SYNOPSIS
 
-  use Lazy::Util qw/ lgrep lmap /;
+  use Lazy::Util qw/ l_grep l_map /;
   
-  my $lazy = lmap { $_ * 2 } lgrep { /^[0-9]+$/ } 3, 4, 5, sub {
+  my $lazy = l_map { $_ * 2 } l_grep { /^[0-9]+$/ } 3, 4, 5, sub {
     print "Enter a number: ";
     return scalar readline(STDIN);
   };
@@ -33,31 +33,33 @@ use Scalar::Util qw/ blessed /;
 use constant SCALAR_DEFER => eval 'use Scalar::Defer (); 1';
 
 our @EXPORT_OK = qw/
-  lconcat
-  lfirst
-  lgrep
-  lmap
-  gfirst
-  glast
-  gmax
-  gmin
+  l_concat
+  l_first
+  l_grep
+  l_map
+  g_first
+  g_last
+  g_max
+  g_min
 /;
 
 =head1 FUNCTIONS
 
-This module has two sets of functions, the C<l*> functions and the C<g*> functions. The C<l*> functions are designed to return a C<Lazy::Util> object which you can get values from, the C<g*> functions are designed to get a value out of a C<Lazy::Util> object. Some of the C<g*> function may never return if the source of values is infinite, but they are designed to not eat up all of your memory at least ;).
+This module has two sets of functions, the C<l_*> functions and the C<g_*> functions. The C<l_*> functions are designed to return a C<Lazy::Util> object which you can get values from, the C<g_*> functions are designed to get a value out of a C<Lazy::Util> object. Some of the C<g_*> function may never return if the source of values is infinite, but they are designed to not eat up all of your memory at least ;).
 
-The C<l*> functions are:
+=head2 C<l_*> functions
 
-=head2 lconcat - C<lconcat(@sources)>
+The C<l_*> functions are:
 
-  my $lazy = lconcat 1, 2, 3, sub { state $i++; }, sub { state $j++; }, $lazy2;
+=head3 l_concat - C<l_concat(@sources)>
 
-C<lconcat> returns a C<Lazy::Util> object which will simply return each subsequent value from the list of sources it's given.
+  my $lazy = l_concat 1, 2, 3, sub { state $i++; }, sub { state $j++; }, $lazy2;
+
+C<l_concat> returns a C<Lazy::Util> object which will simply return each subsequent value from the list of sources it's given.
 
 =cut
 
-sub lconcat {
+sub l_concat {
   my (@vals) = grep defined, @_;
 
   return Lazy::Util->new(sub { undef }) if @vals == 0;
@@ -78,18 +80,18 @@ sub lconcat {
   });
 }
 
-=head2 lfirst - C<lfirst($n, @sources)>
+=head3 l_first - C<l_first($n, @sources)>
 
-  my $lazy = lfirst $n, 1, 2, 3, sub { state $i++ }, $lazy2;
+  my $lazy = l_first $n, 1, 2, 3, sub { state $i++ }, $lazy2;
 
-C<lfirst> will return a C<Lazy::Util> object which will only get the first C<$n> values from the subsequent arguments. This can be used the 'break' an otherwise infinite list to only return a certain number of results.
+C<l_first> will return a C<Lazy::Util> object which will only get the first C<$n> values from the subsequent arguments. This can be used the 'break' an otherwise infinite list to only return a certain number of results.
 
 =cut
 
-sub lfirst {
+sub l_first {
   my ($n, @vals) = @_;
 
-  my $vals = lconcat @vals;
+  my $vals = l_concat @vals;
 
   return Lazy::Util->new(sub {
      return $vals->get() if $n-- > 0;
@@ -97,18 +99,18 @@ sub lfirst {
   });
 }
 
-=head2 lgrep - C<lgrep($code, @sources)>
+=head3 l_grep - C<l_grep($code, @sources)>
 
-  my $lazy = lgrep { $_ > 3 } 3, 4, 5, sub { $i++ }, $lazy2;
+  my $lazy = l_grep { $_ > 3 } 3, 4, 5, sub { $i++ }, $lazy2;
 
-C<lgrep> will return a C<Lazy::Util> object which will filter out any value which doesn't return true from the C<$code> block in the first argument.
+C<l_grep> will return a C<Lazy::Util> object which will filter out any value which doesn't return true from the C<$code> block in the first argument.
 
 =cut
 
-sub lgrep (&@) {
+sub l_grep (&@) {
   my ($grep, @vals) = @_;
 
-  my $vals = lconcat @vals;
+  my $vals = l_concat @vals;
 
   return Lazy::Util->new(sub {
     while (defined(my $get = $vals->get())) {
@@ -119,18 +121,18 @@ sub lgrep (&@) {
   });
 }
 
-=head2 lmap - C<lmap($code, @sources)>
+=head3 l_map - C<l_map($code, @sources)>
 
-  my $lazy = lmap { lc } 'a', 'b', sub { scalar readline }, $lazy2;
+  my $lazy = l_map { lc } 'a', 'b', sub { scalar readline }, $lazy2;
 
-C<lmap> will return a C<Lazy::Util> object which will transform any value using the C<$code> block in the first argument.
+C<l_map> will return a C<Lazy::Util> object which will transform any value using the C<$code> block in the first argument.
 
 =cut
 
-sub lmap (&@) {
+sub l_map (&@) {
   my ($map, @vals) = @_;
 
-  my $vals = lconcat @vals;
+  my $vals = l_concat @vals;
 
   return Lazy::Util->new(sub {
     my $get = $vals->get();
@@ -142,38 +144,40 @@ sub lmap (&@) {
   });
 }
 
-=pod
+=head2 C<g_*> functions
 
-The C<g*> functions are:
+The C<g_*> functions are:
 
-=head2 gfirst - C<gfirst(@sources)>
+=head3 g_first - C<g_first(@sources)>
 
-  my $val = gfirst 1, 2, 3, sub { state $i++; }, $lazy;
+  my $val = g_first 1, 2, 3, sub { state $i++; }, $lazy;
 
-C<gfirst> returns the first value from the list of arguments, lazily evaluating them. Equivalent to C<< lconcat(...)->get(); >>.
+C<g_first> returns the first value from the list of arguments, lazily evaluating them. Equivalent to C<< l_concat(...)->get(); >>.
+If C<@sources> is empty, it will return C<undef>.
 
 =cut
 
-sub gfirst {
+sub g_first {
   my (@vals) = @_;
 
-  my $vals = lconcat @vals;
+  my $vals = l_concat @vals;
 
   return $vals->get();
 }
 
-=head2 glast - C<glast(@sources)>
+=head3 g_last - C<g_last(@sources)>
 
-  my $val = glast 1, 2, 3, sub { state $i++; }, $lazy;
+  my $val = g_last 1, 2, 3, sub { state $i++; }, $lazy;
 
-C<glast> evaluates all the values it's given and returns the last value. B<This has the potential to never return> if given a source of infinite values.
+C<g_last> evaluates all the values it's given and returns the last value. B<This has the potential to never return> if given a source of infinite values.
+If C<@sources> is empty, it will return C<undef>.
 
 =cut
 
-sub glast {
+sub g_last {
   my @vals = @_;
 
-  my $vals = lconcat @vals;
+  my $vals = l_concat @vals;
 
   my $ret = undef;
   while (defined(my $get = $vals->get())) { $ret = $get; }
@@ -181,18 +185,19 @@ sub glast {
   return $ret;
 }
 
-=head2 gmax - C<gmax(@sources)>
+=head3 g_max - C<g_max(@sources)>
 
-  my $val = gmax 1, 2, 3, sub { state $i++; }, $lazy;
+  my $val = g_max 1, 2, 3, sub { state $i++; }, $lazy;
 
-C<gmax> evaluates all the values it's given and returns the highest one. B<This has the potential to never return> if given a source of infinite values.
+C<g_max> evaluates all the values it's given and returns the highest one. B<This has the potential to never return> if given a source of infinite values.
+If C<@sources> is empty, it will return C<undef>.
 
 =cut
 
-sub gmax {
+sub g_max {
   my @vals = @_;
 
-  my $vals = lconcat @vals;
+  my $vals = l_concat @vals;
 
   my $ret = $vals->get();
   while (defined(my $get = $vals->get())) { $ret = $get if $get > $ret; }
@@ -200,18 +205,19 @@ sub gmax {
   return $ret;
 }
 
-=head2 gmin - C<gmin(@sources)>
+=head3 g_min - C<g_min(@sources)>
 
-  my $val = gmin 1, 2, 3, sub { state $i++; }, $lazy;
+  my $val = g_min 1, 2, 3, sub { state $i++; }, $lazy;
 
-C<gmin> evaluates all the values it's given and returns the lowest one. B<This has the potential to never return> if given a source of infinite values.
+C<g_min> evaluates all the values it's given and returns the lowest one. B<This has the potential to never return> if given a source of infinite values.
+If C<@sources> is empty, it will return C<undef>.
 
 =cut
 
-sub gmin {
+sub g_min {
   my @vals = @_;
 
-  my $vals = lconcat @vals;
+  my $vals = l_concat @vals;
 
   my $ret = $vals->get();
   while (defined(my $get = $vals->get())) { $ret = $get if $get < $ret; }
