@@ -43,9 +43,13 @@ our @EXPORT_OK = qw/
   g_min
 /;
 
+our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
+
 =head1 FUNCTIONS
 
 This module has two sets of functions, the C<l_*> functions and the C<g_*> functions. The C<l_*> functions are designed to return a C<Lazy::Util> object which you can get values from, the C<g_*> functions are designed to get a value out of a C<Lazy::Util> object. Some of the C<g_*> function may never return if the source of values is infinite, but they are designed to not eat up all of your memory at least ;).
+
+All these functions can be exported, but none are exported by default. You can use the C<:all> export tag to export all of them.
 
 =head2 C<l_*> functions
 
