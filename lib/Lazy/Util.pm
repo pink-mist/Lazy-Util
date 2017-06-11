@@ -48,6 +48,7 @@ our @EXPORT_OK = qw/
   g_max
   g_min
   g_prod
+  g_sum
 /;
 
 our %EXPORT_TAGS = ( all => [ @EXPORT_OK ], );
@@ -385,6 +386,26 @@ sub g_prod {
 
   my $ret = 1;
   while (defined(my $get = $vals->get())) { $ret *= $get; return 0 if $ret == 0; }
+
+  return $ret;
+}
+
+=head3 g_sum - C<g_sum(@sources)>
+
+  my $val = g_sum 1, 2, 3, sub { state $i++; }, $lazy;
+
+C<g_sum> evaluates all the values it's given and returns the sum of all of them. B<This has the potential to never return> if given a source of infinite values.
+If C<@sources> is empty, it will return C<0>.
+
+=cut
+
+sub g_sum {
+  my @vals = @_;
+
+  my $vals = l_concat @vals;
+
+  my $ret = 0;
+  while (defined(my $get = $vals->get())) { $ret += $get; }
 
   return $ret;
 }
