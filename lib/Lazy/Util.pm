@@ -34,9 +34,11 @@ use constant SCALAR_DEFER => eval 'use Scalar::Defer (); 1';
 
 our @EXPORT_OK = qw/
   l_concat
+  l_find
   l_first
   l_grep
   l_map
+  l_nfind
   g_first
   g_last
   g_max
@@ -86,6 +88,28 @@ sub l_concat {
       else { shift @vals; }
     }
     return undef;
+  });
+}
+
+=head3 l_find - C<l_find($str, @sources)>
+
+  my $lazy = l_find 'stop value', 1, 2, 3, sub { state $i++ }, $lazy2;
+
+C<l_find> will return a C<Lazy::Util> object which will get as many values as needed until it reaches a value equal to C<$str>, which it will also return, and thereafter it returns C<undef>. This can be used to 'break' an otherwise infinite list, as long as the C<$str> value is guaranteed to come up. See also L<< l_nfind()|/"l_nfind - C<l_nfind($num, @sources)>" >>.
+
+=cut
+
+sub l_find {
+  my ($str, @vals) = @_;
+
+  my $vals = l_concat @vals;
+
+  my $found = 0;
+  return Lazy::Util->new(sub {
+    return undef if $found;
+    my $get = $vals->get();
+    $found = 1 if !defined $get or $get eq $str;
+    return $get;
   });
 }
 
@@ -149,6 +173,28 @@ sub l_map (&@) {
 
     $get = $map->($get) for $get;
 
+    return $get;
+  });
+}
+
+=head3 l_nfind - C<l_nfind($num, @sources)>
+
+  my $lazy = l_find_n 10, 1, 2, 3, sub { state $i++ }, $lazy2;
+
+C<l_nfind> will return a C<Lazy::Util> object which will get as many values as needed until it reaches a value equal to C<$num>, which it will also return, and thereafter it returns C<undef>. This can be used to 'break' an otherwise infinite list, as long as the C<$num> value is guaranteed to come up. See also L<< l_find()|/"l_find - C<l_find($str, @sources)>" >>.
+
+=cut
+
+sub l_nfind {
+  my ($num, @vals) = @_;
+
+  my $vals = l_concat @vals;
+
+  my $found = 0;
+  return Lazy::Util->new(sub {
+    return undef if $found;
+    my $get = $vals->get();
+    $found = 1 if !defined $get or $get == $num;
     return $get;
   });
 }
