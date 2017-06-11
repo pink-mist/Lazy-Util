@@ -39,6 +39,8 @@ our @EXPORT_OK = qw/
   l_grep
   l_map
   l_nfind
+  l_nuniq
+  l_uniq
   g_first
   g_last
   g_max
@@ -196,6 +198,51 @@ sub l_nfind {
     my $get = $vals->get();
     $found = 1 if !defined $get or $get == $num;
     return $get;
+  });
+}
+
+=head3 l_nuniq - C<l_nuniq(@sources)>
+
+  my $lazy = l_nuniq 1, 2, 3, sub { state $i++ }, $lazy2;
+
+C<l_nuniq> will return a C<Lazy::Util> object which will only return numerically unique values from the sources. B<This has the potential to consume all of your memory> if the C<@sources> are infinite.
+
+=cut
+
+sub l_nuniq {
+  my (@vals) = @_;
+
+  my $vals = l_concat @vals;
+
+  my %uniq;
+  return Lazy::Util->new(sub {
+    while (defined(my $get = $vals->get())) {
+      my $key = 0+$get;
+      $uniq{$key}++ or return $get;
+    }
+    return undef;
+  });
+}
+
+=head3 l_uniq - C<l_uniq(@sources)>
+
+  my $lazy = l_uniq 1, 2, 3, sub { state $i++ }, $lazy2;
+
+C<l_uniq> will return a C<Lazy::Util> object which will only return unique values from the sources. B<This has the potential to consume all of your memory> if the C<@sources> are infinite.
+
+=cut
+
+sub l_uniq {
+  my (@vals) = @_;
+
+  my $vals = l_concat @vals;
+
+  my %uniq;
+  return Lazy::Util->new(sub {
+    while (defined(my $get = $vals->get())) {
+      $uniq{$get}++ or return $get;
+    }
+    return undef;
   });
 }
 
