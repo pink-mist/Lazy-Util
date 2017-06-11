@@ -278,4 +278,14 @@ sub get_all {
 
 __END__
 
+=head1 NOTES
 
+If L<Scalar::Defer> is installed, it will assume that any object of type C<0> is a C<Scalar::Defer> value and will treat it as a source of values.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Scalar::Defer>
+
+=back
