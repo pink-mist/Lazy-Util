@@ -71,6 +71,7 @@ is (g_last(3,4,5), 5, 'g_last returned 5');
 is (g_max(1,2,3,9,8,7,6), 9, 'g_max returned 9');
 is (g_min(1,2,3,-4,-3,-2,-1,0), -4, 'g_min returned -4');
 is (g_prod(1,2,3), 6, 'g_prod returned 6');
+is (g_sum(1,2,3), 6, 'g_sum returned 6');
 
 my @values = ('a', 'b', 'c');
 my $l_v = l_concat sub { shift @values };
