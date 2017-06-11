@@ -22,7 +22,7 @@ Perl utility functions for lazy evalutation.
 
 =head1 NOTE
 
-This is alpha-level software. The interface may change without notice.
+This is alpha-level software. I've not actually decided whether this type of API is useful, and so the interface may change without notice.
 
 =cut
 
@@ -229,6 +229,26 @@ sub g_min {
   return $ret;
 }
 
+=head2 C<@sources>
+
+The C<@sources> array that most (all?) of these functions take can be any combination of regular scalar values, C<Lazy::Util> objects, L<Scalar::Defer> variables (see L</"NOTES">), or subroutine references. Each of these will be iterated through from start to finish, and if one of them returns C<undef>, the next one will be used instead, until the last one returns C<undef>.
+
+For instance, in the following scenario:
+
+  my @values = qw/ a b c /;
+  my $source = sub { shift @values };
+  my $lazy = l_concat $source, 1;
+
+  my @results = ($lazy->get(), $lazy->get(), $lazy->get(), $lazy->get());
+
+What happens when you run C<< $lazy->get() >> the first time is that the subroutine in C<$source> will be executed, and so C<@values> will change to only contain C<qw/ b c />, and C<a> will be returned. The next time C<@values> will be changed to only contain C<qw/ c />, and C<b> will be returned. The third C<< $lazy->get() >> will change C<@values> to C<qw//> (an empty array), and return the C<c>.
+
+So far so good.
+
+What happens with the next C<< $lazy->get() >> is that the subroutine in C<$source> will be executed one last time, and it will run C<shift @values>, but C<@values> is empty, so it will return C<undef>, which will signal that C<$source> is exhausted, and so it will be discarded. The next value will be taken from the next element in C<@sources>, which is the single scalar C<1>.
+
+This means that at the end, C<@results> will contain C<qw/ a b c 1 />, and any subsequent call to C<< $lazy->get() >> will return C<undef>.
+
 =head1 Lazy::Util objects
 
 C<Lazy::Util> objects encapsulate a set of lazy evaluation functions, meaning you can combine them using the C<l*> functions listed above.
@@ -291,6 +311,8 @@ __END__
 =head1 NOTES
 
 If L<Scalar::Defer> is installed, it will assume that any object of type C<0> is a C<Scalar::Defer> value and will treat it as a source of values.
+
+Not to be confused with L<Lazy::Utils>.
 
 =head1 SEE ALSO
 
