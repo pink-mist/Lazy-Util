@@ -22,11 +22,6 @@ package Lazy::Util;
 
 Perl utility functions for lazy evalutation.
 
-=head1 NOTE
-
-This is alpha-level software. I've not actually decided whether this type of
-API is useful, and so the interface may change without notice.
-
 =cut
 
 use Carp qw/ croak /;
@@ -567,8 +562,8 @@ __END__
 
 =head1 NOTES
 
-If L<Scalar::Defer> is installed, it will assume that any object of type C<0>
-is a C<Scalar::Defer> value and will treat it as a source of values.
+If L<Scalar::Defer> is installed, it will assume that any variable of type C<0>
+is a C<Scalar::Defer> variable and will treat it as a source of values.
 
 Not to be confused with L<Lazy::Utils>.
 
