@@ -1,4 +1,6 @@
 {{$NEXT}}
+  - Separate out OO stuff into Lazy::Util::OO module
+  - Change how SCALAR_DEFER constant is set (Grinnz++)
 
 0.001     2017-06-12 20:06:11+02:00 Europe/Stockholm
   - First release
