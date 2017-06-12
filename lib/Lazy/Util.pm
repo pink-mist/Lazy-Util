@@ -26,6 +26,7 @@ Perl utility functions for lazy evalutation.
 
 use Carp qw/ croak /;
 use Exporter qw/ import /;
+use Lazy::Util::OO;
 use Scalar::Util qw/ blessed /;
 
 use constant SCALAR_DEFER => eval { require Scalar::Defer; 1 };
@@ -42,11 +43,11 @@ sub _isa { defined blessed $_[0] and $_[0]->isa($_[1]); }
 =head1 FUNCTIONS
 
 This module has two sets of functions, the C<l_*> functions and the C<g_*>
-functions. The C<l_*> functions are designed to return a C<Lazy::Util> object
-which you can get values from, the C<g_*> functions are designed to get a value
-out of a C<Lazy::Util> object. Some of the C<g_*> functions may never return if
-the source of values is infinite, but they are for the most part designed to
-not eat up all of your memory at least ;).
+functions. The C<l_*> functions are designed to return a L<C<Lazy::Util::OO>>
+object which you can get values from, the C<g_*> functions are designed to get
+a value out of a L<C<Lazy::Util::OO>> object. Some of the C<g_*> functions may
+never return if the source of values is infinite, but they are for the most
+part designed to not eat up all of your memory at least ;).
 
 All these functions can be exported, but none are exported by default. You can
 use the C<:all> export tag to export all of them.
@@ -55,11 +56,11 @@ use the C<:all> export tag to export all of them.
 
 The C<l_*> functions are:
 
-=head3 l_concat - C<l_concat(@sources)>
+=head3 C<l_concat(@sources)>
 
   my $lazy = l_concat @sources;
 
-C<l_concat> returns a C<Lazy::Util> object which will simply return each
+C<l_concat> returns a L<C<Lazy::Util::OO>> object which will simply return each
 subsequent value from the list of sources it's given.
 
 =cut
@@ -67,26 +68,26 @@ subsequent value from the list of sources it's given.
 sub l_concat {
   my (@vals) = grep defined, @_;
 
-  return Lazy::Util->new(sub {undef}) if @vals == 0;
+  return Lazy::Util::OO->new(sub {undef}) if @vals == 0;
 
-  return $vals[0] if @vals == 1 and _isa($vals[0], 'Lazy::Util');
+  return $vals[0] if @vals == 1 and _isa($vals[0], 'Lazy::Util::OO');
 
-  return Lazy::Util->new(
+  return Lazy::Util::OO->new(
     sub {
       while (@vals) {
 
-        # if it's a Scalar::Defer or a CODE reference, coerce into a Lazy::Util
-        # object
-        $vals[0] = Lazy::Util->new($vals[0])
+        # if it's a Scalar::Defer or a CODE reference, coerce into a
+        # Lazy::Util::OO object
+        $vals[0] = Lazy::Util::OO->new($vals[0])
           if SCALAR_DEFER && _isa($vals[0], 0)
           or ref $vals[0] eq 'CODE';
 
-        # if by this point it's not a Lazy::Util object, simply return it and
-        # remove from @vals
-        return shift @vals if not _isa($vals[0], 'Lazy::Util');
+        # if by this point it's not a Lazy::Util::OO object, simply return it
+        # and remove from @vals
+        return shift @vals if not _isa($vals[0], 'Lazy::Util::OO');
 
-        # ->get the next value from the Lazy::Util object and return it if it's
-        # defined
+        # ->get the next value from the Lazy::Util::OO object and return it if
+        # it's defined
         if   (defined(my $get = $vals[0]->get())) { return $get; }
         else                                      { shift @vals; }
       }
@@ -95,11 +96,11 @@ sub l_concat {
   );
 }
 
-=head3 l_first - C<l_first($n, @sources)>
+=head3 C<l_first($n, @sources)>
 
   my $lazy = l_first $n, @sources;
 
-C<l_first> will return a C<Lazy::Util> object which will only get the first
+C<l_first> will return a L<C<Lazy::Util::OO>> object which will only get the first
 C<$n> values from the subsequent arguments. This can be used the 'break' an
 otherwise infinite list to only return a certain number of results.
 
@@ -110,7 +111,7 @@ sub l_first {
 
   my $vals = l_concat @vals;
 
-  return Lazy::Util->new(
+  return Lazy::Util::OO->new(
     sub {
       return $vals->get() if $n-- > 0;
       return undef;
@@ -118,12 +119,12 @@ sub l_first {
   );
 }
 
-=head3 l_grep - C<l_grep($code, @sources)>
+=head3 C<l_grep($code, @sources)>
 
   my $lazy = l_grep { ... } @sources;
 
-C<l_grep> will return a C<Lazy::Util> object which will filter out any value
-which doesn't return true from the C<$code> block in the first argument.
+C<l_grep> will return a L<C<Lazy::Util::OO>> object which will filter out any
+value which doesn't return true from the C<$code> block in the first argument.
 
 =cut
 
@@ -132,7 +133,7 @@ sub l_grep (&@) {
 
   my $vals = l_concat @vals;
 
-  return Lazy::Util->new(
+  return Lazy::Util::OO->new(
     sub {
       while (defined(my $get = $vals->get())) {
         for ($get) {
@@ -145,11 +146,11 @@ sub l_grep (&@) {
   );
 }
 
-=head3 l_map - C<l_map($code, @sources)>
+=head3 C<l_map($code, @sources)>
 
   my $lazy = l_map { ... } @sources;
 
-C<l_map> will return a C<Lazy::Util> object which will transform any value
+C<l_map> will return a L<C<Lazy::Util::OO>> object which will transform any value
 using the C<$code> block in the first argument.
 
 =cut
@@ -160,7 +161,7 @@ sub l_map (&@) {
   my $vals = l_concat @vals;
 
   my @subvals = ();
-  return Lazy::Util->new(
+  return Lazy::Util::OO->new(
     sub {
       return shift @subvals if @subvals;
 
@@ -176,11 +177,11 @@ sub l_map (&@) {
   );
 }
 
-=head3 l_nuniq - C<l_nuniq(@sources)>
+=head3 C<l_nuniq(@sources)>
 
   my $lazy = l_nuniq @sources;
 
-C<l_nuniq> will return a C<Lazy::Util> object which will only return
+C<l_nuniq> will return a L<C<Lazy::Util::OO>> object which will only return
 numerically unique values from the sources. B<This has the potential to consume
 all of your memory> if the C<@sources> are infinite.
 
@@ -192,7 +193,7 @@ sub l_nuniq {
   my $vals = l_concat @vals;
 
   my %uniq;
-  return Lazy::Util->new(
+  return Lazy::Util::OO->new(
     sub {
       while (defined(my $get = $vals->get())) {
         my $key = 0 + $get;
@@ -203,11 +204,11 @@ sub l_nuniq {
   );
 }
 
-=head3 l_uniq - C<l_uniq(@sources)>
+=head3 C<l_uniq(@sources)>
 
   my $lazy = l_uniq @sources;
 
-C<l_uniq> will return a C<Lazy::Util> object which will only return unique
+C<l_uniq> will return a L<C<Lazy::Util::OO>> object which will only return unique
 values from the sources. B<This has the potential to consume all of your
 memory> if the C<@sources> are infinite.
 
@@ -219,7 +220,7 @@ sub l_uniq {
   my $vals = l_concat @vals;
 
   my %uniq;
-  return Lazy::Util->new(
+  return Lazy::Util::OO->new(
     sub {
       while (defined(my $get = $vals->get())) {
         $uniq{$get}++ or return $get;
@@ -229,12 +230,12 @@ sub l_uniq {
   );
 }
 
-=head3 l_until C<l_until($code, @sources)>
+=head3 C<l_until($code, @sources)>
 
   my $lazy = l_until { ... } @sources;
 
-C<l_until> will return a C<Lazy::Util> object which will return values from the
-C<@sources> until the C<$code> block returns true, after which it will be
+C<l_until> will return a L<C<Lazy::Util::OO>> object which will return values from
+the C<@sources> until the C<$code> block returns true, after which it will be
 exhausted.
 
 =cut
@@ -245,7 +246,7 @@ sub l_until (&@) {
   my $vals = l_concat @vals;
 
   my $found = 0;
-  return Lazy::Util->new(
+  return Lazy::Util::OO->new(
     sub {
       return undef if $found;
 
@@ -261,7 +262,7 @@ sub l_until (&@) {
 
 The C<g_*> functions are:
 
-=head3 g_count - C<g_count(@sources)>
+=head3 C<g_count(@sources)>
 
   my $count = g_count @sources;
 
@@ -282,7 +283,7 @@ sub g_count {
   return $n;
 }
 
-=head3 g_first - C<g_first(@sources)>
+=head3 C<g_first(@sources)>
 
   my $val = g_first @sources;
 
@@ -300,7 +301,7 @@ sub g_first {
   return $vals->get();
 }
 
-=head3 g_join - C<g_join($sep, @sources)>
+=head3 C<g_join($sep, @sources)>
 
   my $lines = g_join $str, @sources;
 
@@ -322,7 +323,7 @@ sub g_join {
   return $ret;
 }
 
-=head3 g_last - C<g_last(@sources)>
+=head3 C<g_last(@sources)>
 
   my $val = g_last @sources;
 
@@ -343,7 +344,7 @@ sub g_last {
   return $ret;
 }
 
-=head3 g_max - C<g_max(@sources)>
+=head3 C<g_max(@sources)>
 
   my $val = g_max @sources;
 
@@ -364,7 +365,7 @@ sub g_max {
   return $ret;
 }
 
-=head3 g_min - C<g_min(@sources)>
+=head3 C<g_min(@sources)>
 
   my $val = g_min @sources;
 
@@ -385,7 +386,7 @@ sub g_min {
   return $ret;
 }
 
-=head3 g_prod - C<g_prod(@sources)>
+=head3 C<g_prod(@sources)>
 
   my $val = g_prod @sources;
 
@@ -410,7 +411,7 @@ sub g_prod {
   return $ret;
 }
 
-=head3 g_sum - C<g_sum(@sources)>
+=head3 C<g_sum(@sources)>
 
   my $val = g_sum @sources;
 
@@ -432,13 +433,18 @@ sub g_sum {
   return $ret;
 }
 
+1;
+
+__END__
+
 =head2 C<@sources>
 
 The C<@sources> array that most (all?) of these functions take can be any
-combination of regular scalar values, C<Lazy::Util> objects, L<Scalar::Defer>
-variables (see L</"NOTES">), or subroutine references. Each of these will be
-iterated through from start to finish, and if one of them returns C<undef>, the
-next one will be used instead, until the last one returns C<undef>.
+combination of regular scalar values, L<C<Lazy::Util::OO>> objects,
+L<Scalar::Defer> variables (see L</"NOTES">), or subroutine references. Each of
+these will be iterated through from start to finish, and if one of them returns
+C<undef>, the next one will be used instead, until the last one returns
+C<undef>.
 
 For instance, in the following scenario:
 
@@ -466,100 +472,6 @@ taken from the next element in C<@sources>, which is the single scalar C<1>.
 This means that at the end, C<@results> will contain C<qw/ a b c 1 />, and any
 subsequent call to C<< $lazy->get() >> will return C<undef>.
 
-=head1 Lazy::Util objects
-
-C<Lazy::Util> objects encapsulate a set of lazy evaluation functions, meaning
-you can combine them using the C<l*> functions listed above.
-
-=head2 new - C<< Lazy::Util->new($source) >>
-
-  my $lazy = Lazy::Util->new(sub { $i++ });
-
-C<< Lazy::Util->new >> takes a code reference which will be used as the source
-for all the values and returns a C<Lazy::Util> object encapsulating that
-source.
-
-=cut
-
-sub new {
-  my ($class, $source) = @_;
-
-  if (SCALAR_DEFER and _isa($source, 0)) {
-    my $sd = $source;
-    $source = sub { Scalar::Defer::force $sd };
-  }
-
-  croak "Not a CODE reference: $source" if ref $source ne 'CODE';
-
-  return bless {code => $source, exhausted => 0}, $class;
-}
-
-=head2 exhausted - C<< $lazy->exhausted() >>
-
-  my $exhausted = $lazy->exhausted();
-
-C<< $lazy->exhausted() >> checks if there's any more values left in the source,
-and caches any such value for the next C<< $lazy->get() >> call. It returns 0
-if there are values left, and 1 if the source is exhausted.
-
-An exhausted C<Lazy::Util> object will always return C<undef> from a
-C<< $lazy->get() >> call.
-
-=cut
-
-sub exhausted {
-  my $self = shift;
-
-  $self->{get} = $self->get();
-
-  return $self->{exhausted};
-}
-
-=head2 get - C<< $lazy->get() >>
-
-  my $next = $lazy->get();
-
-C<< $lazy->get >> returns the next value from the source it encapsulates. When
-there are no more values it returns C<undef>.
-
-=cut
-
-sub get {
-  my $self = shift;
-
-  return delete $self->{get} if exists $self->{get};
-
-  return undef if $self->{exhausted};
-
-  my $ret = $self->{code}->();
-  $self->{exhausted} = 1 if not defined $ret;
-
-  return $ret;
-}
-
-=head2 get_all - C<< $lazy->get_all() >>
-
-  my @crazy = $lazy->get_all();
-
-C<< $lazy->get_all >> returns all the values from the source, if it can. B<This
-has the potential to never return as well as running out of memory> if given a
-source of infinite values.
-
-=cut
-
-sub get_all {
-  my $self = shift;
-
-  my @res;
-  while (defined(my $get = $self->get())) { push @res, $get; }
-
-  return @res;
-}
-
-1;
-
-__END__
-
 =head1 NOTES
 
 If L<Scalar::Defer> is installed, it will assume that any variable of type C<0>
@@ -570,6 +482,8 @@ Not to be confused with L<Lazy::Utils>.
 =head1 SEE ALSO
 
 =over 4
+
+=item L<Lazy::Util::OO>
 
 =item L<Scalar::Defer>
 
