@@ -35,8 +35,11 @@ use Scalar::Util qw/ blessed /;
 
 use constant SCALAR_DEFER => eval 'use Scalar::Defer (); 1';
 
-our @EXPORT_OK = qw/ l_concat l_find l_first l_grep l_map l_nfind l_nuniq
-  l_uniq g_count g_first g_join g_last g_max g_min g_prod g_sum /;
+our @EXPORT_OK = qw/
+  l_concat l_find l_first l_grep l_map
+  l_nfind l_nuniq l_uniq g_count g_first
+  g_join g_last g_max g_min g_prod g_sum
+  /;
 
 our %EXPORT_TAGS = (all => [@EXPORT_OK],);
 
@@ -81,8 +84,8 @@ sub l_concat {
         # if it's a Scalar::Defer or a CODE reference, coerce into a Lazy::Util
         # object
         $vals[0] = Lazy::Util->new($vals[0])
-          if SCALAR_DEFER and _isa($vals[0], 0);
-        $vals[0] = Lazy::Util->new($vals[0]) if ref $vals[0] eq 'CODE';
+          if SCALAR_DEFER && _isa($vals[0], 0)
+          or ref $vals[0] eq 'CODE';
 
         # if by this point it's not a Lazy::Util object, simply return it and
         # remove from @vals
