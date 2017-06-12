@@ -36,9 +36,8 @@ use Scalar::Util qw/ blessed /;
 use constant SCALAR_DEFER => eval 'use Scalar::Defer (); 1';
 
 our @EXPORT_OK = qw/
-  l_concat l_find l_first l_grep l_map
-  l_nfind l_nuniq l_uniq g_count g_first
-  g_join g_last g_max g_min g_prod g_sum
+  l_concat l_first l_grep l_map l_nuniq l_uniq l_until g_count g_first g_join
+  g_last g_max g_min g_prod g_sum
   /;
 
 our %EXPORT_TAGS = (all => [@EXPORT_OK],);
@@ -97,34 +96,6 @@ sub l_concat {
         else                                      { shift @vals; }
       }
       return undef;
-    }
-  );
-}
-
-=head3 l_find - C<l_find($str, @sources)>
-
-  my $lazy = l_find $str, @sources;
-
-C<l_find> will return a C<Lazy::Util> object which will get as many values as
-needed until it reaches a value equal to C<$str>, which it will also return,
-and thereafter it returns C<undef>. This can be used to 'break' an otherwise
-infinite list, as long as the C<$str> value is guaranteed to come up. See also
-L<< l_nfind()|/"l_nfind - C<l_nfind($num, @sources)>" >>.
-
-=cut
-
-sub l_find {
-  my ($str, @vals) = @_;
-
-  my $vals = l_concat @vals;
-
-  my $found = 0;
-  return Lazy::Util->new(
-    sub {
-      return undef if $found;
-      my $get = $vals->get();
-      $found = 1 if !defined $get or $get eq $str;
-      return $get;
     }
   );
 }
@@ -210,34 +181,6 @@ sub l_map (&@) {
   );
 }
 
-=head3 l_nfind - C<l_nfind($num, @sources)>
-
-  my $lazy = l_find_n $num, @sources;
-
-C<l_nfind> will return a C<Lazy::Util> object which will get as many values as
-needed until it reaches a value equal to C<$num>, which it will also return,
-and thereafter it returns C<undef>. This can be used to 'break' an otherwise
-infinite list, as long as the C<$num> value is guaranteed to come up. See also
-L<< l_find()|/"l_find - C<l_find($str, @sources)>" >>.
-
-=cut
-
-sub l_nfind {
-  my ($num, @vals) = @_;
-
-  my $vals = l_concat @vals;
-
-  my $found = 0;
-  return Lazy::Util->new(
-    sub {
-      return undef if $found;
-      my $get = $vals->get();
-      $found = 1 if !defined $get or $get == $num;
-      return $get;
-    }
-  );
-}
-
 =head3 l_nuniq - C<l_nuniq(@sources)>
 
   my $lazy = l_nuniq @sources;
@@ -287,6 +230,34 @@ sub l_uniq {
         $uniq{$get}++ or return $get;
       }
       return undef;
+    }
+  );
+}
+
+=head3 l_until C<l_until($code, @sources)>
+
+  my $lazy = l_until { ... } @sources;
+
+C<l_until> will return a C<Lazy::Util> object which will return values from the
+C<@sources> until the C<$code> block returns true, after which it will be
+exhausted.
+
+=cut
+
+sub l_until (&@) {
+  my ($until, @vals) = @_;
+
+  my $vals = l_concat @vals;
+
+  my $found = 0;
+  return Lazy::Util->new(
+    sub {
+      return undef if $found;
+
+      my $get = $vals->get();
+      $found = $until->($get) for $get;
+
+      return $get;
     }
   );
 }
