@@ -28,7 +28,7 @@ use Carp qw/ croak /;
 use Exporter qw/ import /;
 use Scalar::Util qw/ blessed /;
 
-use constant SCALAR_DEFER => eval 'use Scalar::Defer (); 1';
+use constant SCALAR_DEFER => eval { require Scalar::Defer; 1 };
 
 our @EXPORT_OK = qw/
   l_concat l_first l_grep l_map l_nuniq l_uniq l_until g_count g_first g_join
