@@ -47,6 +47,14 @@ is($l_m->get(), 15,    'Third value from l_map was 15');
 is($l_m->get(), undef, 'Only three values from l_map');
 is($l_m->exhausted(), 1, '$l_m is exhausted');
 
+my $l_m2 = l_map { $_ == 1 ? () : $_ == 2 ? (2,2) : $_ } 1, 2, 1, 1, 3;
+isa_ok($l_m2, 'Lazy::Util');
+is($l_m2->get(), 2, 'First value from l_map was 2');
+is($l_m2->get(), 2, 'Second value from l_map was 2');
+is($l_m2->get(), 3, 'Third value from l_map was 3');
+is($l_m2->get(), undef, 'Only three values from l_map');
+is($l_m2->exhausted(), 1, '$l_m2 is exhausted');
+
 my $l_nf = l_nfind 3, 1, 2, 3, 4, 5;
 isa_ok($l_nf, 'Lazy::Util');
 is($l_nf->get(), 1,     'First value from l_nfind was 1');
