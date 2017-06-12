@@ -198,10 +198,12 @@ sub l_map (&@) {
     sub {
       return shift @subvals if @subvals;
 
-      my $get = $vals->get();
-      return undef if not defined $get;
+      while (not @subvals) {
+        my $get = $vals->get();
+        return undef if not defined $get;
 
-      @subvals = $map->($get) for $get;
+        @subvals = $map->($get) for $get;
+      }
 
       return shift @subvals;
     }
