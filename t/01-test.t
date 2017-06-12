@@ -12,6 +12,7 @@ isa_ok($l_c, 'Lazy::Util');
 is($l_c->get(), 1,     'First value from l_concat was 1');
 is($l_c->get(), 2,     'Second value from l_concat was 2');
 is($l_c->get(), undef, 'Only two values from l_concat');
+is($l_c->exhausted(), 1, '$l_c is exhausted');
 
 my $l_find = l_find 'baa',
   qw/ aaa aab aba baa aac aca caa abc acb bac bca cab cba /;
@@ -21,6 +22,7 @@ is($l_find->get(), 'aab', 'Second value from l_find was aab');
 is($l_find->get(), 'aba', 'Third value from l_find was aba');
 is($l_find->get(), 'baa', 'Fourth value from l_find was baa');
 is($l_find->get(), undef, 'Only four values from l_find');
+is($l_find->exhausted(), 1, '$l_find is exhausted');
 
 my $l_f = l_first 3, 1, 2, 3, 4;
 isa_ok($l_f, 'Lazy::Util');
@@ -28,12 +30,14 @@ is($l_f->get(), 1,     'First value from l_first was 1');
 is($l_f->get(), 2,     'Second value from l_first was 2');
 is($l_f->get(), 3,     'Third value in from l_first was 3');
 is($l_f->get(), undef, 'Only three values from l_first');
+is($l_f->exhausted(), 1, '$l_f is exhausted');
 
 my $l_g = l_grep { $_ > 3 } 1, 2, 3, 4, 5;
 isa_ok($l_g, 'Lazy::Util');
 is($l_g->get(), 4,     'First value from l_grep was 4');
 is($l_g->get(), 5,     'Second value from l_grep was 5');
 is($l_g->get(), undef, 'Only two values from l_grep');
+is($l_g->exhausted(), 1, '$l_g is exhausted');
 
 my $l_m = l_map { $_ * 5 } 1, 2, 3;
 isa_ok($l_m, 'Lazy::Util');
@@ -41,6 +45,7 @@ is($l_m->get(), 5,     'First value from l_map was 5');
 is($l_m->get(), 10,    'Second value from l_map was 10');
 is($l_m->get(), 15,    'Third value from l_map was 15');
 is($l_m->get(), undef, 'Only three values from l_map');
+is($l_m->exhausted(), 1, '$l_m is exhausted');
 
 my $l_nf = l_nfind 3, 1, 2, 3, 4, 5;
 isa_ok($l_nf, 'Lazy::Util');
@@ -48,6 +53,7 @@ is($l_nf->get(), 1,     'First value from l_nfind was 1');
 is($l_nf->get(), 2,     'Second value from l_nfind was 2');
 is($l_nf->get(), 3,     'Third value from l_nfind was 3');
 is($l_nf->get(), undef, 'Only three values from l_nfind');
+is($l_nf->exhausted(), 1, '$l_nf is exhausted');
 
 my $l_nu = l_nuniq 1, 2, 1, 2, 3, 1, 2, 3, 4;
 isa_ok($l_nu, 'Lazy::Util');
@@ -56,6 +62,7 @@ is($l_nu->get(), 2,     'Second value from l_nuniq was 2');
 is($l_nu->get(), 3,     'Third value from l_nuniq was 3');
 is($l_nu->get(), 4,     'Fourth value from l_nuniq was 4');
 is($l_nu->get(), undef, 'Only four values from l_nuniq');
+is($l_nu->exhausted(), 1, '$l_nu is exhausted');
 
 my $l_u = l_uniq qw/ a b a b c a b c d /;
 isa_ok($l_u, 'Lazy::Util');
@@ -64,6 +71,7 @@ is($l_u->get(), 'b',   'Second value from l_uniq was b');
 is($l_u->get(), 'c',   'Third value from l_uniq was c');
 is($l_u->get(), 'd',   'Fourth value from l_uniq was d');
 is($l_u->get(), undef, 'Only four values from l_uniq');
+is($l_u->exhausted(), 1, '$l_u is exhausted');
 
 is(g_count(qw/ a b c d/), 4, 'g_count returned 4');
 is(g_count(),             0, 'g_count returned 0');
@@ -93,6 +101,7 @@ is($l_v->get(),    'a',   'First value from code ref was a');
 is($l_v->get(),    'b',   'Second value from code ref was b');
 is($l_v->get(),    'c',   'Third value from code ref was c');
 is($l_v->get(),    undef, 'Only three values from code ref');
+is($l_v->exhausted(), 1, '$l_v is exhausted');
 is(scalar @values, 0,     '@values emptied');
 
 @values = 'd';
