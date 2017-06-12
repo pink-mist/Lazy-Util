@@ -526,6 +526,27 @@ sub new {
   return bless {code => $source, exhausted => 0}, $class;
 }
 
+=head2 exhausted - C<< $lazy->exhausted() >>
+
+  my $exhausted = $lazy->exhausted();
+
+C<< $lazy->exhausted() >> checks if there's any more values left in the source,
+and caches any such value for the next C<< $lazy->get() >> call. It returns 0
+if there are values left, and 1 if the source is exhausted.
+
+An exhausted C<Lazy::Util> object will always return C<undef> from a
+C<< $lazy->get() >> call.
+
+=cut
+
+sub exhausted {
+  my $self = shift;
+
+  $self->{get} = $self->get();
+
+  return $self->{exhausted};
+}
+
 =head2 get - C<< $lazy->get() >>
 
   my $next = $lazy->get();
@@ -537,6 +558,8 @@ there are no more values it returns C<undef>.
 
 sub get {
   my $self = shift;
+
+  return delete $self->{get} if exists $self->{get};
 
   return undef if $self->{exhausted};
 
