@@ -14,14 +14,14 @@ is($l_c->get(), 2,     'Second value from l_concat was 2');
 is($l_c->get(), undef, 'Only two values from l_concat');
 is($l_c->exhausted(), 1, '$l_c is exhausted');
 
-my $l_find = l_find 'baa',
+my $l_find = l_until { $_ eq 'baa' }
   qw/ aaa aab aba baa aac aca caa abc acb bac bca cab cba /;
 isa_ok($l_find, 'Lazy::Util');
-is($l_find->get(), 'aaa', 'First value from l_find was aaa');
-is($l_find->get(), 'aab', 'Second value from l_find was aab');
-is($l_find->get(), 'aba', 'Third value from l_find was aba');
-is($l_find->get(), 'baa', 'Fourth value from l_find was baa');
-is($l_find->get(), undef, 'Only four values from l_find');
+is($l_find->get(), 'aaa', 'First value from l_until was aaa');
+is($l_find->get(), 'aab', 'Second value from l_until was aab');
+is($l_find->get(), 'aba', 'Third value from l_until was aba');
+is($l_find->get(), 'baa', 'Fourth value from l_until was baa');
+is($l_find->get(), undef, 'Only four values from l_until');
 is($l_find->exhausted(), 1, '$l_find is exhausted');
 
 my $l_f = l_first 3, 1, 2, 3, 4;
@@ -55,12 +55,12 @@ is($l_m2->get(), 3, 'Third value from l_map was 3');
 is($l_m2->get(), undef, 'Only three values from l_map');
 is($l_m2->exhausted(), 1, '$l_m2 is exhausted');
 
-my $l_nf = l_nfind 3, 1, 2, 3, 4, 5;
+my $l_nf = l_until { $_ == 3 } 1, 2, 3, 4, 5;
 isa_ok($l_nf, 'Lazy::Util');
-is($l_nf->get(), 1,     'First value from l_nfind was 1');
-is($l_nf->get(), 2,     'Second value from l_nfind was 2');
-is($l_nf->get(), 3,     'Third value from l_nfind was 3');
-is($l_nf->get(), undef, 'Only three values from l_nfind');
+is($l_nf->get(), 1,     'First value from l_until was 1');
+is($l_nf->get(), 2,     'Second value from l_until was 2');
+is($l_nf->get(), 3,     'Third value from l_until was 3');
+is($l_nf->get(), undef, 'Only three values from l_until');
 is($l_nf->exhausted(), 1, '$l_nf is exhausted');
 
 my $l_nu = l_nuniq 1, 2, 1, 2, 3, 1, 2, 3, 4;
