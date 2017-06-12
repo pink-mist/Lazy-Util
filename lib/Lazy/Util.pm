@@ -190,14 +190,17 @@ sub l_map (&@) {
 
   my $vals = l_concat @vals;
 
+  my @subvals = ();
   return Lazy::Util->new(
     sub {
+      return shift @subvals if @subvals;
+
       my $get = $vals->get();
       return undef if not defined $get;
 
-      $get = $map->($get) for $get;
+      @subvals = $map->($get) for $get;
 
-      return $get;
+      return shift @subvals;
     }
   );
 }
@@ -510,8 +513,6 @@ source.
 sub new {
   my ($class, $source) = @_;
 
-  return $source if _isa($source, 'Lazy::Util');
-
   if (SCALAR_DEFER and _isa($source, 0)) {
     my $sd = $source;
     $source = sub { Scalar::Defer::force $sd };
@@ -519,7 +520,7 @@ sub new {
 
   croak "Not a CODE reference: $source" if ref $source ne 'CODE';
 
-  return bless $source, $class;
+  return bless {code => $source, exhausted => 0}, $class;
 }
 
 =head2 get - C<< $lazy->get() >>
@@ -534,7 +535,12 @@ there are no more values it returns C<undef>.
 sub get {
   my $self = shift;
 
-  return $self->();
+  return undef if $self->{exhausted};
+
+  my $ret = $self->{code}->();
+  $self->{exhausted} = 1 if not defined $ret;
+
+  return $ret;
 }
 
 =head2 get_all - C<< $lazy->get_all() >>
@@ -551,7 +557,7 @@ sub get_all {
   my $self = shift;
 
   my @res;
-  while (defined(my $get = $self->())) { push @res, $get; }
+  while (defined(my $get = $self->get())) { push @res, $get; }
 
   return @res;
 }
