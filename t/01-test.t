@@ -7,6 +7,16 @@ use Test::More;
 
 use Lazy::Util qw/ :all /;
 
+sub l_nuniq {
+  my %uniq;
+  return l_map { $uniq{0+$_}++ ? () : $_ } @_;
+}
+
+sub l_uniq {
+  my %uniq;
+  return l_map { $uniq{$_}++ ? () : $_ } @_;
+}
+
 my $l_c = l_concat 1, 2;
 isa_ok($l_c, 'Lazy::Iterator');
 is($l_c->get(), 1,     'First value from l_concat was 1');

@@ -32,8 +32,8 @@ use Scalar::Util qw/ blessed /;
 use constant SCALAR_DEFER => eval { require Scalar::Defer; 1 };
 
 our @EXPORT_OK = qw/
-  l_concat l_first l_grep l_map l_nuniq l_uniq l_until g_count g_first g_join
-  g_last g_max g_min g_prod g_sum
+  l_concat l_first l_grep l_map l_until g_count g_first g_join g_last g_max
+  g_min g_prod g_sum
   /;
 
 our %EXPORT_TAGS = (all => [@EXPORT_OK],);
@@ -179,59 +179,6 @@ sub l_map (&@) {
       }
 
       return shift @subvals;
-    }
-  );
-}
-
-=head3 C<l_nuniq(@sources)>
-
-  my $lazy = l_nuniq @sources;
-
-C<l_nuniq> will return a L<C<Lazy::Iterator>> object which will only return
-numerically unique values from the sources. B<This has the potential to consume
-all of your memory> if the C<@sources> are infinite.
-
-=cut
-
-sub l_nuniq {
-  my (@vals) = @_;
-
-  my $vals = l_concat @vals;
-
-  my %uniq;
-  return Lazy::Iterator->new(
-    sub {
-      while (defined(my $get = $vals->get())) {
-        my $key = 0 + $get;
-        $uniq{$key}++ or return $get;
-      }
-      return undef;
-    }
-  );
-}
-
-=head3 C<l_uniq(@sources)>
-
-  my $lazy = l_uniq @sources;
-
-C<l_uniq> will return a L<C<Lazy::Iterator>> object which will only return
-unique values from the sources. B<This has the potential to consume all of your
-memory> if the C<@sources> are infinite.
-
-=cut
-
-sub l_uniq {
-  my (@vals) = @_;
-
-  my $vals = l_concat @vals;
-
-  my %uniq;
-  return Lazy::Iterator->new(
-    sub {
-      while (defined(my $get = $vals->get())) {
-        $uniq{$get}++ or return $get;
-      }
-      return undef;
     }
   );
 }
