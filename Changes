@@ -1,4 +1,7 @@
 {{$NEXT}}
+  - Expand l_map documentation
+  - Rename Lazy::Util::OO to Lazy::Iterator
+  - Remove l_nuniq and l_uniq in favour of l_map
 
 0.002     2017-06-12 22:16:47+02:00 Europe/Stockholm
   - Separate out OO stuff into Lazy::Util::OO module
