@@ -52,11 +52,11 @@ part designed to not eat up all of your memory at least ;).
 All these functions can be exported, but none are exported by default. You can
 use the C<:all> export tag to export all of them.
 
-=head1 C<l_*> functions
+=head1 l_* functions
 
 The C<l_*> functions are:
 
-=head2 C<l_concat(@sources)>
+=head2 l_concat
 
   my $lazy = l_concat @sources;
 
@@ -96,7 +96,7 @@ sub l_concat {
   );
 }
 
-=head2 C<l_first($n, @sources)>
+=head2 l_first
 
   my $lazy = l_first $n, @sources;
 
@@ -119,7 +119,7 @@ sub l_first {
   );
 }
 
-=head2 C<l_grep($code, @sources)>
+=head2 l_grep
 
   my $lazy = l_grep { ... } @sources;
 
@@ -146,7 +146,7 @@ sub l_grep (&@) {
   );
 }
 
-=head2 C<l_map($code, @sources)>
+=head2 l_map
 
   my $lazy = l_map { ... } @sources;
 
@@ -183,7 +183,7 @@ sub l_map (&@) {
   );
 }
 
-=head2 C<l_until($code, @sources)>
+=head2 l_until
 
   my $lazy = l_until { ... } @sources;
 
@@ -211,11 +211,11 @@ sub l_until (&@) {
   );
 }
 
-=head1 C<g_*> functions
+=head1 g_* functions
 
 The C<g_*> functions are:
 
-=head3 C<g_count(@sources)>
+=head2 g_count
 
   my $count = g_count @sources;
 
@@ -236,7 +236,7 @@ sub g_count {
   return $n;
 }
 
-=head2 C<g_first(@sources)>
+=head2 g_first
 
   my $val = g_first @sources;
 
@@ -254,7 +254,7 @@ sub g_first {
   return $vals->get();
 }
 
-=head2 C<g_join($sep, @sources)>
+=head2 g_join
 
   my $lines = g_join $str, @sources;
 
@@ -276,7 +276,7 @@ sub g_join {
   return $ret;
 }
 
-=head2 C<g_last(@sources)>
+=head2 g_last
 
   my $val = g_last @sources;
 
@@ -297,7 +297,7 @@ sub g_last {
   return $ret;
 }
 
-=head2 C<g_max(@sources)>
+=head2 g_max
 
   my $val = g_max @sources;
 
@@ -318,7 +318,7 @@ sub g_max {
   return $ret;
 }
 
-=head2 C<g_min(@sources)>
+=head2 g_min
 
   my $val = g_min @sources;
 
@@ -339,7 +339,7 @@ sub g_min {
   return $ret;
 }
 
-=head2 C<g_prod(@sources)>
+=head2 g_prod
 
   my $val = g_prod @sources;
 
@@ -364,7 +364,7 @@ sub g_prod {
   return $ret;
 }
 
-=head2 C<g_sum(@sources)>
+=head2 g_sum
 
   my $val = g_sum @sources;
 
@@ -390,10 +390,10 @@ sub g_sum {
 
 __END__
 
-=head1 C<@sources>
+=head1 @sources
 
 The C<@sources> array that most (all?) of these functions take can be any
-combination of regular scalar values, L<C<Lazy::Iterator>> objects,
+combination of regular scalar values, L<Lazy::Iterator> objects,
 L<Scalar::Defer> variables (see L</"NOTES">), or subroutine references. Each of
 these will be iterated through from start to finish, and if one of them returns
 C<undef>, the next one will be used instead, until the last one returns
@@ -428,7 +428,7 @@ subsequent call to C<< $lazy->get() >> will return C<undef>.
 =head1 NOTES
 
 If L<Scalar::Defer> is installed, it will assume that any variable of type C<0>
-is a C<Scalar::Defer> variable and will treat it as a source of values.
+is a L<Scalar::Defer> variable and will treat it as a source of values.
 
 Not to be confused with L<Lazy::Utils>.
 

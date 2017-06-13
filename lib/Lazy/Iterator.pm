@@ -16,7 +16,7 @@ package Lazy::Iterator;
 =head1 DESCRIPTION
 
 Objects encapsulating a set of lazy evaluation functions, meaning you can
-combine them using the L<C<l_*>|Lazy::Util/"C<l_*> functions"> functions from
+combine them using the L<C<l_*>|Lazy::Util/"l_* functions"> functions from
 L<C<Lazy::Util>>.
 
 =cut
@@ -28,9 +28,9 @@ use constant SCALAR_DEFER => eval { require Scalar::Defer; 1 };
 
 sub _isa { defined blessed $_[0] and $_[0]->isa($_[1]); }
 
-=head1 METHODS
+=head1 CONSTRUCTORS
 
-=head2 C<< Lazy::Iterator->new($source) >>
+=head2 new
 
   my $lazy = Lazy::Iterator->new(sub { $i++ });
 
@@ -56,7 +56,9 @@ sub new {
   return bless {code => $source, exhausted => 0}, $class;
 }
 
-=head2 C<< $lazy->exhausted() >>
+=head1 METHODS
+
+=head2 exhausted
 
   my $exhausted = $lazy->exhausted();
 
@@ -77,7 +79,7 @@ sub exhausted {
   return $self->{exhausted};
 }
 
-=head2 C<< $lazy->get() >>
+=head2 get
 
   my $next = $lazy->get();
 
@@ -99,7 +101,7 @@ sub get {
   return $ret;
 }
 
-=head2 C<< $lazy->get_all() >>
+=head2 get_all
 
   my @crazy = $lazy->get_all();
 
