@@ -153,6 +153,12 @@ sub l_grep (&@) {
 C<l_map> will return a L<C<Lazy::Util::OO>> object which will transform any
 value using the C<$code> block in the first argument.
 
+The C<$code> block is evaluated in list context, and each scalar it returns
+will be returned by each subsequent ->get(), not poking the C<@sources> again
+until the list is exhausted. If an empty list is returned, the C<@sources> will
+be poked again until a list of at least one element is returned, or the source
+returns C<undef>.
+
 =cut
 
 sub l_map (&@) {
