@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.003     2017-06-13 22:49:00+02:00 Europe/Stockholm
   - Expand l_map documentation
   - Rename Lazy::Util::OO to Lazy::Iterator
   - Remove l_nuniq and l_uniq in favour of l_map
