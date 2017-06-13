@@ -20,7 +20,7 @@ package Lazy::Util;
 
 =head1 DESCRIPTION
 
-Perl utility functions for lazy evalutation.
+Perl utility functions for lazy evaluation.
 
 =cut
 
