@@ -100,9 +100,9 @@ sub l_concat {
 
   my $lazy = l_first $n, @sources;
 
-C<l_first> will return a L<C<Lazy::Util::OO>> object which will only get the first
-C<$n> values from the subsequent arguments. This can be used the 'break' an
-otherwise infinite list to only return a certain number of results.
+C<l_first> will return a L<C<Lazy::Util::OO>> object which will only get the
+first C<$n> values from the subsequent arguments. This can be used the 'break'
+an otherwise infinite list to only return a certain number of results.
 
 =cut
 
@@ -150,8 +150,8 @@ sub l_grep (&@) {
 
   my $lazy = l_map { ... } @sources;
 
-C<l_map> will return a L<C<Lazy::Util::OO>> object which will transform any value
-using the C<$code> block in the first argument.
+C<l_map> will return a L<C<Lazy::Util::OO>> object which will transform any
+value using the C<$code> block in the first argument.
 
 =cut
 
@@ -208,8 +208,8 @@ sub l_nuniq {
 
   my $lazy = l_uniq @sources;
 
-C<l_uniq> will return a L<C<Lazy::Util::OO>> object which will only return unique
-values from the sources. B<This has the potential to consume all of your
+C<l_uniq> will return a L<C<Lazy::Util::OO>> object which will only return
+unique values from the sources. B<This has the potential to consume all of your
 memory> if the C<@sources> are infinite.
 
 =cut
@@ -234,9 +234,9 @@ sub l_uniq {
 
   my $lazy = l_until { ... } @sources;
 
-C<l_until> will return a L<C<Lazy::Util::OO>> object which will return values from
-the C<@sources> until the C<$code> block returns true, after which it will be
-exhausted.
+C<l_until> will return a L<C<Lazy::Util::OO>> object which will return values
+from the C<@sources> until the C<$code> block returns true, after which it will
+be exhausted.
 
 =cut
 
