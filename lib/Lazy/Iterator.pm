@@ -1,15 +1,15 @@
 use strict;
 use warnings;
 
-package Lazy::Util::OO;
+package Lazy::Iterator;
 
 #ABSTRACT: Objects encapsulating a set of lazy evaluation functions.
 
 =head1 SYNOPSIS
 
-  use Lazy::Util::OO;
+  use Lazy::Iterator;
 
-  my $lazy = Lazy::Util::OO->new(sub { state $i++ });
+  my $lazy = Lazy::Iterator->new(sub { state $i++ });
 
   while (my $next = $lazy->get()) { print "$next\n"; sleep 1; }
 
@@ -30,12 +30,12 @@ sub _isa { defined blessed $_[0] and $_[0]->isa($_[1]); }
 
 =head1 METHODS
 
-=head2 C<< Lazy::Util::OO->new($source) >>
+=head2 C<< Lazy::Iterator->new($source) >>
 
-  my $lazy = Lazy::Util::OO->new(sub { $i++ });
+  my $lazy = Lazy::Iterator->new(sub { $i++ });
 
-C<< Lazy::Util::OO->new >> takes a code reference which will be used as the
-source for all the values and returns a C<Lazy::Util::OO> object encapsulating
+C<< Lazy::Iterator->new >> takes a code reference which will be used as the
+source for all the values and returns a C<Lazy::Iterator> object encapsulating
 that source.
 
 The C<$source> needs to be either a C<CODE> reference, or a C<Scalar::Defer>
@@ -64,7 +64,7 @@ C<< $lazy->exhausted() >> checks if there's any more values left in the source,
 and caches any such value for the next C<< $lazy->get() >> call. It returns 0
 if there are values left, and 1 if the source is exhausted.
 
-An exhausted C<Lazy::Util::OO> object will always return C<undef> from a
+An exhausted C<Lazy::Iterator> object will always return C<undef> from a
 C<< $lazy->get() >> call.
 
 =cut
