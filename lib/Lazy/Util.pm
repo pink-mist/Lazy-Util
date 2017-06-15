@@ -43,9 +43,9 @@ sub _isa { defined blessed $_[0] and $_[0]->isa($_[1]); }
 =head1 FUNCTIONS
 
 This module has two sets of functions, the C<l_*> functions and the C<g_*>
-functions. The C<l_*> functions are designed to return a L<C<Lazy::Iterator>>
+functions. The C<l_*> functions are designed to return a L<Lazy::Iterator>
 object which you can get values from, the C<g_*> functions are designed to get
-a value out of a L<C<Lazy::Iterator>> object. Some of the C<g_*> functions may
+a value out of a L<Lazy::Iterator> object. Some of the C<g_*> functions may
 never return if the source of values is infinite, but they are for the most
 part designed to not eat up all of your memory at least ;).
 
@@ -60,7 +60,7 @@ The C<l_*> functions are:
 
   my $lazy = l_concat @sources;
 
-C<l_concat> returns a L<C<Lazy::Iterator>> object which will simply return each
+C<l_concat> returns a L<Lazy::Iterator> object which will simply return each
 subsequent value from the list of sources it's given.
 
 =cut
@@ -100,7 +100,7 @@ sub l_concat {
 
   my $lazy = l_first $n, @sources;
 
-C<l_first> will return a L<C<Lazy::Iterator>> object which will only get the
+C<l_first> will return a L<Lazy::Iterator> object which will only get the
 first C<$n> values from the subsequent arguments. This can be used the 'break'
 an otherwise infinite list to only return a certain number of results.
 
@@ -123,7 +123,7 @@ sub l_first {
 
   my $lazy = l_grep { ... } @sources;
 
-C<l_grep> will return a L<C<Lazy::Iterator>> object which will filter out any
+C<l_grep> will return a L<Lazy::Iterator> object which will filter out any
 value which doesn't return true from the C<$code> block in the first argument.
 
 =cut
@@ -150,7 +150,7 @@ sub l_grep (&@) {
 
   my $lazy = l_map { ... } @sources;
 
-C<l_map> will return a L<C<Lazy::Iterator>> object which will transform any
+C<l_map> will return a L<Lazy::Iterator> object which will transform any
 value using the C<$code> block in the first argument.
 
 The C<$code> block is evaluated in list context, and each scalar it returns
@@ -187,7 +187,7 @@ sub l_map (&@) {
 
   my $lazy = l_until { ... } @sources;
 
-C<l_until> will return a L<C<Lazy::Iterator>> object which will return values
+C<l_until> will return a L<Lazy::Iterator> object which will return values
 from the C<@sources> until the C<$code> block returns true, after which it will
 be exhausted.
 
