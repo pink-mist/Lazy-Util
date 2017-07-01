@@ -74,7 +74,7 @@ C<< $lazy->get() >> call.
 sub exhausted {
   my $self = shift;
 
-  $self->{get} = $self->get();
+  unshift @{ $self->{get} }, $self->get();
 
   return $self->{exhausted};
 }
@@ -91,7 +91,7 @@ there are no more values it returns C<undef>.
 sub get {
   my $self = shift;
 
-  return delete $self->{get} if exists $self->{get};
+  return shift @{ $self->{get} } if @{ $self->{get} || [] };
 
   return undef if $self->{exhausted};
 
@@ -118,6 +118,27 @@ sub get_all {
   while (defined(my $get = $self->get())) { push @res, $get; }
 
   return @res;
+}
+
+=head2 unget
+
+  $lazy = $lazy->unget($value);
+
+C<< $lazy->unget >> stashes C<$value> as the next thing to be returned by
+C<< $last->get() >>. Can be used multiple times to stash further values. The
+latest stashed value will be returned first.
+
+=cut
+
+sub unget {
+  my $self = shift;
+  my $value = shift;
+
+  croak "Can't unget an undefined value." if not defined $value;
+
+  unshift @{ $self->{get} }, $value;
+
+  return $self;
 }
 
 1;
