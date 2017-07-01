@@ -1,5 +1,6 @@
 {{$NEXT}}
   - Pod fixups
+  - Add unget method to Lazy::Iterator
 
 0.003     2017-06-13 22:49:00+02:00 Europe/Stockholm
   - Expand l_map documentation
